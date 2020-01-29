@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Login</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<style>
+			input, button, p {
+				margin: 5px;
+			}
+
+			p {
+				color: red;
+			}
+
+			#login_error, #processing_login, #error_msg_container {
+				display: none;
+			}
+
+			#forgot_password_msg {
+				color: blue;
+				text-decoration: none;
+			}
+		</style>
+	</head>
+	<body>
+		{% include 'includes/navbar.html' with status=status %}
+
+		<input type = 'text' name = 'username' id = 'username_field'><br>
+		<input type = 'password' name = 'password' id = 'password_field'><br>
+		<button onclick = 'authenticateUser()'>Login</button>
+		<a id = 'forgot_password_msg' href = '/restore_password/'>Forgot password?</a>
+		<a id = 'processing_login'>Just a second...</a>
+		<br>
+		<p id = 'login_error'>Wrong login or password</p>
+		<button onclick = 'location.replace("/registration/")'>Registration</button>
+		<p id='error_msg_container'></p>
+		<script>
+			function getCookie(name) {
+				var cookieValue = null;
+				if (document.cookie && document.cookie !== '') {
+					var cookies = document.cookie.split(';');
+					for (var i = 0; i < cookies.length; i++) {
+						var cookie = cookies[i].trim();
+						if (cookie.substring(0, name.length + 1) === (name + '=')) {
+							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							break;
+						}
+					}
+				}
+				return cookieValue;
+			}
+
+			function authenticateUser() {
+				var username = $('#username_field').val(),
+					password = $('#password_field').val();
+
+				var data = {username: username, password: password};
+
+				$('#processing_login').show();
+				$('#forgot_password_msg').hide();
+				$('#login_error').hide();
+
+				$.ajax({
+					type: 'POST',
+					async: true,
+					url: '/api/login/',
+					data: data,
+					headers: {
+						'X-CSRFToken': getCookie('csrftoken')
+					},
+					success: function(result) {
+						$('#processing_login').hide();
+						$('#forgot_password_msg').show();
+						if (result.status == 'accepted') {
+							location.replace('/');
+						} else {
+							$('#error_msg_container').text(result.message);
+							$('#error_msg_container').show();
+						}
+					},
+					error: function() {
+						alert('Error in AJAX((99(((((99((');
+					}
+				})
+			}
+		</script>
+	</body>
+</html>

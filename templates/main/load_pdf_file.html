@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Load PDF file</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<style>
+			body {
+				background-color: linen;
+			}
+		</style>
+	</head>
+	<body>
+		{% include 'includes/navbar.html' with status=status %}
+
+		<input type='file' name='pdf-file' id='pdf-file-input' multiple />
+		<br>
+		<br>
+		<button id='load-file-btn'>Parse files</button>
+		<p id='result-field'></p>
+		<script>
+			function getCookie(name) {
+				var cookieValue = null;
+				if (document.cookie && document.cookie !== '') {
+					var cookies = document.cookie.split(';');
+					for (var i = 0; i < cookies.length; i++) {
+						var cookie = cookies[i].trim();
+						if (cookie.substring(0, name.length + 1) === (name + '=')) {
+							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							break;
+						}
+					}
+				}
+				return cookieValue;
+			}
+
+			$(document).ready(function(){
+				$('#load-file-btn').click(function(){
+					var files = $('#pdf-file-input').prop('files'),
+						fd = new FormData;
+
+					for (let fileNum in files) {
+						fd.append('pdf-file', files[fileNum]);
+					}
+
+					/*
+					alert('goooo');
+					console.log(fd['pdf-file0']);
+					*/
+					$.ajax({
+						url: '/api/parse_pdf/',
+						type: 'POST',
+						async: true,
+						data: fd,
+						processData: false,
+						contentType: false,
+						headers: {
+							'X-CSRFToken': getCookie('csrftoken')
+						},
+						success: function(result){
+							$('#result-field').text(result.message);
+						},
+						error: function(){
+							alert('Error in AJAX((99(((((99((');
+						}
+					})
+				});
+			});
+		</script>
+	</body>
+</html>

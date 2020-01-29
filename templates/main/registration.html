@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <title>Registration</title>
+	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<style>
+			#fieldset {
+				margin: 50px;
+				align-items: right;
+				border: 3px solid green;
+				border-radius: 10px;
+				padding: 20px;
+				position: absolute;
+				left: 360px;
+			}
+
+			#fieldset input {
+				margin: 12px;
+				border-radius: 3px;
+				border: 1px solid black;
+				height: 18px;
+			}
+
+			#register_button {
+				width: 80px;
+				height: 30px;
+				background: transparent;
+				border: 1px solid blue;
+				border-radius: 5px;
+				color: blue;
+				position: relative;
+				margin: 10px;
+				left: 100px;
+				transition: 0.3s;
+				display: block;
+				cursor: pointer;
+			}
+			#register_button:hover {
+				background: blue;
+				border: 1px solid transparent;
+				color: white;
+			}
+
+			#legend {
+				color: #cc00ff;
+				font-size: 20px;
+			}
+			#validation_error_msg, #passwords_dont_match_error_msg, #error_msg_container {
+				color: #ff0000;
+				font-size: 15px;
+				display: none;
+				position: relative;
+				right: 55px;
+			}
+			#passwords_dont_match_error_msg {
+				right: 86px;
+			}
+
+			#wait_msg {
+				display: none;
+				position: relative;
+				right: 110px;
+			}
+		</style>
+	</head>
+	<body>
+		{% include 'includes/navbar.html' with status=status %}
+
+		<fieldset id = 'fieldset' align = 'right'>
+			<legend align = 'center' id = 'legend'><a>Attention! All fields are required!</a></legend>
+			<a>Name:</a><input type = 'text' name = 'name' id = 'name_field' required><br>
+			<a>Surname:</a><input type = 'text' name = 'surname' id = 'surname_field' required><br>
+			<a>Email:</a><input type = 'email' name = 'email' id = 'email_field' required><br>
+			<a>Username:</a><input type = 'text' name = 'username' id = 'username_field' required><br>
+			<a>Password:</a><input type = 'text' name = 'password' id = 'password_field' required><br>
+			<a>Repeat password:</a><input type = 'text' name = 'repeat_password' id = 'repeat_password_field' required><br>
+			<a>Link to google sheet:</a><input type = 'text' name = 'repeat_password' id = 'google-sheet-id' required><br>
+			<a id = 'validation_error_msg' align = 'center'>Please fill in all fields correctly!<br></a>
+			<a id = 'passwords_dont_match_error_msg' align = 'center'>Passwords don't match!<br></a>
+			<a id='error_msg_container'></a>
+			<button id = 'register_button'>Register</button>
+			<a id = 'wait_msg'>Just a second...</a>
+		</fieldset>
+		<script>
+			function getCookie(name) {
+				var cookieValue = null;
+				if (document.cookie && document.cookie !== '') {
+					var cookies = document.cookie.split(';');
+					for (var i = 0; i < cookies.length; i++) {
+						var cookie = cookies[i].trim();
+						if (cookie.substring(0, name.length + 1) === (name + '=')) {
+							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							break;
+						}
+					}
+				}
+				return cookieValue;
+			}
+
+			$(document).ready(function() {
+				$('#register_button').click(function() {
+					function valid(inputFieldId) {
+						let inputField = $('#' + inputFieldId);
+						if (inputField.is(':valid') == false) {
+							inputField.css('border-color', 'red');
+							return false;
+						} else {
+							inputField.css('border-color', 'black');
+							return true;
+						}
+					}
+
+					var name = $('#name_field').val(),
+						surname = $('#surname_field').val(),
+						email = $('#email_field').val(),
+						username = $('#username_field').val(),
+						password = $('#password_field').val(),
+						repeatPassword = $('#repeat_password_field').val(),
+						googleSheetId = $('#google-sheet-id').val().split('/spreadsheets/d/')[1].split('/')[0],
+						allInputs = $('input'),
+						dataValid = true,
+						isValid = true;
+
+					for (let i = 0; i < allInputs.length - 1; i++) {
+						isValid = valid(allInputs[i].id);
+						dataValid = dataValid && isValid;
+					}
+
+					if (dataValid == false) {
+						$('#validation_error_msg').show();
+						$('#passwords_dont_match_error_msg').hide();
+					} else {
+						$('#validation_error_msg').hide();
+						if (password != repeatPassword) {
+							$('#passwords_dont_match_error_msg').show();
+							$('#password_field').css('border-color', 'red');
+							$('#repeat_password_field').css('border-color', 'red');
+						} else {
+							$('#passwords_dont_match_error_msg').hide();
+							$('#wait_msg').show()
+							var data = {
+								name: name,
+								surname: surname,
+								email: email,
+								status: 'user',
+								username: username,
+								password: password,
+								'google-sheet-id': googleSheetId
+							}
+
+							$.ajax({
+								type: 'POST',
+								async: true,
+								url: '/api/add_user/',
+								data: data,
+								headers: {
+									'X-CSRFToken': getCookie('csrftoken')
+								},
+								success: function(result) {
+									$('#wait_msg').hide();
+									if (result.status == 'accepted') {
+										location.replace('/');
+									} else {
+										$('#error_msg_container').text(result.message);
+										$('#error_msg_container').show();
+									}
+								},
+								error: function() {
+									$('#wait_msg').hide();
+									alert('Error in AJAX((99(((((99((');
+								}
+							})
+						}
+					}
+				})
+			})
+		</script>
+	</body>
+</html>
