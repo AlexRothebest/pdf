@@ -9,7 +9,7 @@ from django.conf import settings
 from main.models import Client
 
 
-import httplib2, googleapiclient.discovery
+import httplib2, googleapiclient.discovery, requests
 
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -44,9 +44,12 @@ except:
 		]
 	)
 
-
 httpAuth = credentials.authorize(httplib2.Http())
 service = googleapiclient.discovery.build('sheets', 'v4', http = httpAuth)
+
+
+with open(os.path.join(settings.BASE_DIR, 'api/google_api_keys.json'), 'r', encoding='UTF-8') as file:
+	google_directions_api_key = json.loads(file.read())['directions_api_key']
 
 
 media_base_dir = os.path.join(settings.BASE_DIR, 'media')
@@ -264,10 +267,17 @@ def parse_pdf_file(request):
 		def extract_address(text):
 			try:
 				x = int(text[:6])
-				return text[6:]
+				address = text[6:]
 			except:
-				return text[text.find(re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
-							text)[0]):]
+				address = text[text.find(re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
+							   text)[0]):]
+
+			for i in range(len(address)):
+				for j in range(7, 30):
+					if address[i : i + j] == address[j + j : i + 2 * j]:
+						return address[i:]
+
+			return address
 
 
 		text = get_pdf_data(filename)
@@ -357,6 +367,10 @@ def parse_pdf_file(request):
 			di_phones = [gft(text, 'Phone:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information'))]
 		emails = re.findall(r'[\w\.-]+@[\w\.-]+', text[text.find('DISPATCH INSTRUCTIONS'):])
 
+		directions_api_url = f"https://maps.googleapis.com/maps/api/directions/json?origin={pi_address}&destination={di_address}&mode=driving&traffic_model=pessimistic&departure_time=now&key={directions_api_key}"
+		data = json.loads(requests.get(url))
+		direction_length = data['routes'][0]['legs'][0]['distance']['text'].split('mi')[0].strip()
+		print(direction_length)
 
 		return [[company_name, order_id, company_phone, vehicle_name, str(price), '',\
 				f"https://www.google.com/maps/search/?api=1&query={carrier.replace(' ', '+')}",

@@ -4,7 +4,7 @@ SECRET_KEY = 'd64^bzjn+n599*#4-%3+56!up13sa=e#^h1mqfx2s7_q-ntmg1'
 DEBUG = False
 
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 EMAIL_USE_TLS = True

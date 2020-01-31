@@ -1,4 +1,12 @@
 migrations
 __pycache__
 
+
+media/*
+
+
 api/creds.json
+api/google_api_keys.json
+
+
+*.swp
