@@ -273,11 +273,17 @@ def parse_pdf_file(request):
 							   text)[0]):]
 
 			for i in range(len(address)):
-				for j in range(7, 30):
-					if address[i : i + j] == address[j + j : i + 2 * j]:
-						return address[i:]
+				for j in range(7, min(30, (len(address) - i) // 2)):
+					# print(address[i : i + j])
+					# print(address[i + j : i + 2 * j])
+					if address[i : i + j] == address[i + j : i + 2 * j]:
+						return address[i + j:]
 
 			return address
+
+		# print('\n\n')
+		# print(extract_address('6-75 Truck & Auto Repair)32800 Dequindre Rd32800 Dequindre Rdwarren, MI 48092'))
+		# print('\n\n')
 
 
 		text = get_pdf_data(filename)
@@ -357,28 +363,36 @@ def parse_pdf_file(request):
 			pi_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Pickup Information')),
 						 gft(text, 'Phone 2:', 'Delivery Information', text.find('Pickup Information'))]
 		except:
-			pi_phones = [gft(text, 'Phone:', 'Delivery Information', text.find('Pickup Information'))]
+			pi_phones = [gft(text, 'Phone:', 'Delivery Information', text.find('Pickup Information')), '']
 		# di - Delivery information
 		di_address = extract_address(gft(text, 'Name:', 'Phone:', text.find('Delivery Information')).split(':')[-1])
 		try:
 			di_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Delivery Information')),
 						 gft(text, 'Phone 2:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information'))]
 		except:
-			di_phones = [gft(text, 'Phone:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information'))]
+			di_phones = [gft(text, 'Phone:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information')), '']
 		emails = re.findall(r'[\w\.-]+@[\w\.-]+', text[text.find('DISPATCH INSTRUCTIONS'):])
 
-		directions_api_url = f"https://maps.googleapis.com/maps/api/directions/json?origin={pi_address}&destination={di_address}&mode=driving&traffic_model=pessimistic&departure_time=now&key={directions_api_key}"
-		data = json.loads(requests.get(url))
-		direction_length = data['routes'][0]['legs'][0]['distance']['text'].split('mi')[0].strip()
-		print(direction_length)
+		direction_api_url = f'https://maps.googleapis.com/maps/api/directions/json?origin={pi_address}&destination={di_address}&mode=driving&traffic_model=pessimistic&departure_time=now&key={google_directions_api_key}'.replace('#', '%23')
+		data = json.loads(requests.get(direction_api_url).text)
+		# print(json.dumps(data, indent=4))
+		# print(pi_address)
+		# print(di_address)
+		direction_length = int(data['routes'][0]['legs'][0]['distance']['text'].replace(',', '').split('mi')[0].strip())
+		origin_place_id = data['geocoded_waypoints'][0]['place_id']
+		destination_place_id = data['geocoded_waypoints'][1]['place_id']
+		direction_link = f'https://www.google.com/maps/dir/?api=1&origin={pi_address}&origin_place_id={origin_place_id}&destination={di_address}&destination_place_id={destination_place_id}&travelmode=driving'.replace(' ', '+')
+		origin_address_link = f'https://www.google.com/maps/search/?api=1&query={pi_address}&query_place_id={origin_place_id}'.replace(' ', '+')
+		destination_address_link = f'https://www.google.com/maps/search/?api=1&query={di_address}&query_place_id={destination_place_id}'.replace(' ', '+')
 
-		return [[company_name, order_id, company_phone, vehicle_name, str(price), '',\
-				f"https://www.google.com/maps/search/?api=1&query={carrier.replace(' ', '+')}",
-				', '.join(pi_phones), pickup_exactly,
-				f"https://www.google.com/maps/search/?api=1&query={company_data.replace(' ', '+')}",
-				', '.join(di_phones), '', save_url],
-				['', '', '', '', '', '', '', '', '', '', delivery_estimated.replace('/', '.'),\
-				 '', f'LOT #: {vehicle_lot}']]
+		return [[company_name, order_id, company_phone, vehicle_name, price,
+				f'=ГИПЕРССЫЛКА("{direction_link}";"{direction_length}")',
+				f'=ГИПЕРССЫЛКА("{origin_address_link}";"{pi_address}")',
+				pi_phones[0], pickup_exactly,
+				f'=ГИПЕРССЫЛКА("{destination_address_link}";"{di_address}")',
+				di_phones[0], '', save_url],
+				['', '', '', '', '', '', '', pi_phones[1], '', '', delivery_estimated.replace('/', '.'),\
+				 di_phones[1], f'LOT #: {vehicle_lot}']]
 
 
 	def write_to_googlesheet(data, sheet_id, start_row):
@@ -414,8 +428,6 @@ def parse_pdf_file(request):
 			}
 		).execute()
 
-		print('Values written')
-
 		values = service.spreadsheets().values().batchUpdate(
 			spreadsheetId=sheet_id,
 			body={
@@ -429,8 +441,6 @@ def parse_pdf_file(request):
 				]
 			}
 		).execute()
-
-		print('wsklfknjkdhfegnfejkrghnjtkr')
 
 
 	if request.user.is_authenticated:

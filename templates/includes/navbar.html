@@ -46,17 +46,17 @@
 			<ul>
 				<div class = 'nav_left'>
 					<li><a href = '/'>Home</a></li>
-					<li><a href = '#'>Some link</a></li>
-					<li><a href = '#'>Some link</a></li>
+					{% if username %}
+						{% if status == 'a' %}
+							<li><a href = '/add_user/'>Add new user</a></li>
+						{% endif %}
+						<li><a href = '/api/logout/'>Logout</a></li>
+					{% else %}
+						<li><a href = '/login/'>Login</a></li>
+					{% endif %}
 				</div>
 				<div class = 'nav_right'>
 					<li><a href = '/django_admin/'>Admin</a></li>
-					{% if username == '' %}
-						<li><a href = '/login/'>Login</a></li>
-					{% else %}
-						<li><a href = '/api/logout/'>Logout</a></li>
-					{% endif %}
-					<li><a href = '/registration/'>Register new user</a></li>
 				</div>
 			</ul>
 		</nav>
