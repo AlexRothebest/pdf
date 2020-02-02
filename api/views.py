@@ -134,12 +134,12 @@ def add_user(request):
 				}
 				return return_json_response(result)
 			else:
-				html_message = f'Congratulations, {name}!<br><br>\
-								 Somebody (probably you) registered you in our\
-								 <a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
-								 Your username: {username}<br>\
-								 Your password: {password}<br><br>\
-								 Enjoy!'
+				html_message = 'Congratulations, {}!<br><br>\
+								Somebody (probably you) registered you in our\
+								<a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
+								Your username: {}<br>\
+								Your password: {}<br><br>\
+								Enjoy!'.format(name, username, password)
 				send_mail('Account verification', 'Lol', 'Kek', [email], html_message = html_message)
 
 				new_user = User.objects.create_user(username = username,
@@ -273,7 +273,7 @@ def parse_pdf_file(request):
 			if pos2 == -1:
 				raise Exception('The second substring is not in the text')
 			elif pos2 < pos1:
-				raise Exception(f'The second substirng occurs in the text earlier than the first one (pos1 = {pos1}, pos2 = {pos2})')
+				raise Exception('The second substirng occurs in the text earlier than the first one (pos1 = {}, pos2 = {})'.format(pos1, pos2))
 
 		return text[pos1 : pos2].strip()
 
@@ -328,7 +328,7 @@ def parse_pdf_file(request):
 			pass
 		dispatch_date = gft(text, 'Dispatch Date:', 'Pickup')
 		pickup_exactly = gft(text, ':', 'Delivery', text.find('Pickup')).split('/')
-		pickup_exactly = f'{pickup_exactly[1]}.{pickup_exactly[0]}.{pickup_exactly[2]}'
+		pickup_exactly = '{}.{}.{}'.format(pickup_exactly[1], pickup_exactly[0], pickup_exactly[2])
 		delivery_estimated = gft(text, ':', 'Ship Via:', text.find('Delivery'))
 		ship_via = gft(text, 'Ship Via:', 'Condition:')
 		condition = gft(text, 'Condition:', 'Price')
@@ -388,7 +388,7 @@ def parse_pdf_file(request):
 			di_phones = [gft(text, 'Phone:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information')), '']
 		emails = re.findall(r'[\w\.-]+@[\w\.-]+', text[text.find('DISPATCH INSTRUCTIONS'):])
 
-		direction_api_url = f'https://maps.googleapis.com/maps/api/directions/json?origin={pi_address}&destination={di_address}&mode=driving&traffic_model=pessimistic&departure_time=now&key={google_directions_api_key}'.replace('#', '%23')
+		direction_api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin={}&destination={}&mode=driving&traffic_model=pessimistic&departure_time=now&key={}'.format(pi_address, di_address, google_directions_api_key).replace('#', '%23')
 		data = json.loads(requests.get(direction_api_url).text)
 		# print(json.dumps(data, indent=4))
 		# print(pi_address)
@@ -396,18 +396,18 @@ def parse_pdf_file(request):
 		direction_length = int(data['routes'][0]['legs'][0]['distance']['text'].replace(',', '').split('mi')[0].strip())
 		origin_place_id = data['geocoded_waypoints'][0]['place_id']
 		destination_place_id = data['geocoded_waypoints'][1]['place_id']
-		direction_link = f'https://www.google.com/maps/dir/?api=1&origin={pi_address}&origin_place_id={origin_place_id}&destination={di_address}&destination_place_id={destination_place_id}&travelmode=driving'.replace(' ', '+')
-		origin_address_link = f'https://www.google.com/maps/search/?api=1&query={pi_address}&query_place_id={origin_place_id}'.replace(' ', '+')
-		destination_address_link = f'https://www.google.com/maps/search/?api=1&query={di_address}&query_place_id={destination_place_id}'.replace(' ', '+')
+		direction_link = 'https://www.google.com/maps/dir/?api=1&origin={}&origin_place_id={}&destination={}&destination_place_id={}&travelmode=driving'.format(pi_address, origin_place_id, di_address, destination_place_id).replace(' ', '+')
+		origin_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(pi_address, origin_place_id).replace(' ', '+')
+		destination_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(di_address, destination_place_id).replace(' ', '+')
 
 		return [[company_name, order_id, company_phone, vehicle_name, price,
-				f'=ГИПЕРССЫЛКА("{direction_link}";"{direction_length}")',
-				f'=ГИПЕРССЫЛКА("{origin_address_link}";"{pi_address}")',
+				'=ГИПЕРССЫЛКА("{}";"{}")'.format(direction_link, direction_length),
+				'=ГИПЕРССЫЛКА("{}";"{}")'.format(origin_address_link, pi_address),
 				pi_phones[0], pickup_exactly,
-				f'=ГИПЕРССЫЛКА("{destination_address_link}";"{di_address}")',
+				'=ГИПЕРССЫЛКА("{}";"{}")'.format(destination_address_link, di_address),
 				di_phones[0], '', save_url],
 				['', '', '', '', '', '', '', pi_phones[1], '', '', delivery_estimated.replace('/', '.'),\
-				 di_phones[1], f'LOT #: {vehicle_lot}']]
+				 di_phones[1], 'LOT #: {}'.format(vehicle_lot)]]
 
 
 	def write_to_googlesheet(data, sheet_id, start_row):
@@ -436,7 +436,7 @@ def parse_pdf_file(request):
 				'data': [
 					{
 						'majorDimension': 'ROWS',
-						'range': f'A1:X2',
+						'range': 'A1:X2',
 						'values': to_write_values
 					}
 				]
@@ -450,7 +450,7 @@ def parse_pdf_file(request):
 				'data': [
 					{
 						'majorDimension': 'ROWS',
-						'range': f'A{start_row}:X{start_row + 2}',
+						'range': 'A{}:X{}'.format(start_row, start_row + 2),
 						'values': data
 					}
 				]
@@ -462,8 +462,8 @@ def parse_pdf_file(request):
 		client = Client.objects.get(account = request.user)
 		filenames_to_parse = []
 		for file in request.FILES.getlist('pdf-file'):
-			filename = f"{client.account.username}/{time.time()}-{file.name}"
-			filenames_to_parse.append(f'{media_base_dir}/{filename}')
+			filename = '{}/{}-{}'.format(client.account.username, time.time(), file.name)
+			filenames_to_parse.append('{}/{}'.format(media_base_dir, filename))
 			FileSystemStorage().save(filename, file)
 		for filename in filenames_to_parse:
 			create_thread(write_to_googlesheet,
@@ -484,7 +484,7 @@ def parse_pdf_file(request):
 		client.save()
 		result = {
 			'status': 'accepted',
-			'message': f'{len(filenames_to_parse)} file(s) were successfully parsed.',
+			'message': '{} file(s) were successfully parsed.'.format(len(filenames_to_parse)),
 			'google_sheet_id': client.google_sheet_id
 		}
 		return return_json_response(result)
