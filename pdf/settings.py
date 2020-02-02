@@ -1,5 +1,7 @@
 import os
 
+import django_heroku
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -103,3 +105,6 @@ try:
     from .local_settings import *
 except ImportError:
     print("\n\nCan't import local settings!!!\n\n")
+
+
+django_heroku.settings(locals())
