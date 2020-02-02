@@ -11,14 +11,16 @@
 				border-radius: 10px;
 				padding: 20px;
 				position: absolute;
-				left: 360px;
+				left: 50%;
+				transform: translateX(-70%);
 			}
 
 			#fieldset input, select {
 				margin: 12px;
 				border-radius: 3px;
 				border: 1px solid black;
-				height: 18px;
+				height: 22px;
+				width: 220px;
 			}
 
 			#register_button {
@@ -30,7 +32,8 @@
 				color: blue;
 				position: relative;
 				margin: 10px;
-				left: 100px;
+				left: 50%;
+				transform: translateX(-70%);
 				transition: 0.3s;
 				display: block;
 				cursor: pointer;
@@ -50,7 +53,8 @@
 				font-size: 15px;
 				display: none;
 				position: relative;
-				right: 55px;
+				right: 50%;
+				transition: translateX(-50%);
 			}
 			#passwords_dont_match_error_msg {
 				right: 86px;
@@ -59,12 +63,17 @@
 			#wait_msg {
 				display: none;
 				position: relative;
-				right: 110px;
+				right: 50%;
+				transition: translateX(-50%);
 			}
 
 			select, #status_text {
 				position: relative;
-				right: 81px;
+				right: -4px;
+			}
+			select {
+				height: 25px;
+				width: 222px;
 			}
 		</style>
 	</head>
@@ -75,8 +84,8 @@
 			<legend align = 'center' id = 'legend'><a>Attention: All fields are required!</a></legend>
 			<a>Name:</a><input type = 'text' name = 'name' id = 'name_field' required><br>
 			<a>Surname:</a><input type = 'text' name = 'surname' id = 'surname_field' required><br>
-			<a>Email:</a><input type = 'email' name = 'email' id = 'email_field' required><br>
-			{% if admin %}
+			<a>E-mail:</a><input type = 'email' name = 'email' id = 'email_field' required><br>
+			{% if status == 'a' %}
 			<a id = 'status_text'>Status:</a>
 			<select name = 'status' id = 'status_field' required>
 				<option value = 'admin'>Admin</option>
@@ -86,13 +95,13 @@
 			<br>
 			{% endif %}
 			<a>Username:</a><input type = 'text' name = 'username' id = 'username_field' required><br>
-			<a>Password:</a><input type = 'text' name = 'password' id = 'password_field' required><br>
-			<a>Repeat password:</a><input type = 'text' name = 'repeat_password' id = 'repeat_password_field' required><br>
-			<a>Link to google sheet:</a><input type = 'text' name = 'repeat_password' id = 'google-sheet-id' required><br>
+			<a>Password:</a><input type = 'password' name = 'password' id = 'password_field' required><br>
+			<a>Repeat password:</a><input type = 'password' name = 'repeat_password' id = 'repeat_password_field' required><br>
+			<a>Link to your google sheet:</a><input type = 'text' name = 'repeat_password' id = 'google-sheet-id' required><br>
 			<a id = 'validation_error_msg' align = 'center'>Please fill in all fields correctly!<br></a>
 			<a id = 'passwords_dont_match_error_msg' align = 'center'>Passwords don't match!<br></a>
 			<a id='error_msg_container'></a>
-			<button id = 'register_button'>Register</button>
+			<button id = 'register_button'>Add user</button>
 			<a id = 'wait_msg'>Just a second...</a>
 		</fieldset>
 		<script>

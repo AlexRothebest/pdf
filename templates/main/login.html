@@ -4,6 +4,10 @@
 		<title>Login</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<style>
+			body {
+				background-color: linen;
+			}
+
 			input, button, p {
 				margin: 5px;
 			}
@@ -14,26 +18,68 @@
 
 			#login_error, #processing_login, #error_msg_container {
 				display: none;
+				position: relative;
+				left: 1.1%;
 			}
 
 			#forgot_password_msg {
 				color: blue;
 				text-decoration: none;
+				display: block;
+				margin-top: -15px;
+				position: relative;
+				left: 150px;
+			}
+
+			section {
+				position: relative;
+				left: 35%;
+				transition: translateX(-50%);
+			}
+
+			input {
+				margin: 20px;
+				padding: 10px;
+				width: 200px;
+				background-color: linen;
+				border: 1px solid blue;
+				border-radius: 10px;
+				outline: none;
+			}
+
+			#login-btn {
+				position: relative;
+				left: 1.1%;
+				margin-top: 20px;
+				padding: 10px 20px;
+				background: transparent;
+				border: 1px solid blue;
+				border-radius: 5px;
+				color: blue;
+				transition: 0.3s;
+				cursor: pointer;
+			}
+			#login-btn:hover {
+				background: blue;
+				border: 1px solid transparent;
+				color: white;
 			}
 		</style>
 	</head>
 	<body>
-		{% include 'includes/navbar.html' with username=username status=status %}
+		<!--{% include 'includes/navbar.html' with username=username status=status %}-->
 
-		<input type = 'text' name = 'username' id = 'username_field'><br>
-		<input type = 'password' name = 'password' id = 'password_field'><br>
-		<button onclick = 'authenticateUser()'>Login</button>
-		<a id = 'forgot_password_msg' href = '/restore_password/'>Forgot password?</a>
-		<a id = 'processing_login'>Just a second...</a>
-		<br>
-		<p id = 'login_error'>Wrong login or password</p>
-		<button onclick = 'location.replace("/registration/")'>Registration</button>
-		<p id='error_msg_container'></p>
+		<section>
+			<input type = 'text' name = 'username' placeholder='Username' id = 'username_field'><br>
+			<input type = 'password' name = 'password' placeholder='Password' id = 'password_field'>
+			<a id = 'forgot_password_msg' href = '/restore_password/'><small>Forgot password?</small></a>
+			<button onclick = 'authenticateUser()' id='login-btn'>Login</button>
+			<br>
+			<a id = 'processing_login'>Just a second...</a>
+			<br>
+			<p id = 'login_error'>Wrong login or password</p>
+			<p id='error_msg_container'></p>
+		</section>
 		<script>
 			function getCookie(name) {
 				var cookieValue = null;
@@ -57,7 +103,7 @@
 				var data = {username: username, password: password};
 
 				$('#processing_login').show();
-				$('#forgot_password_msg').hide();
+				$('#forgot_password_msg').css({'visibility': 'hidden'});
 				$('#login_error').hide();
 
 				$.ajax({
@@ -70,7 +116,7 @@
 					},
 					success: function(result) {
 						$('#processing_login').hide();
-						$('#forgot_password_msg').show();
+						$('#forgot_password_msg').css({'visibility': 'visible'});
 						if (result.status == 'accepted') {
 							location.replace('/');
 						} else {

@@ -18,7 +18,12 @@ from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 
+
 from xlutils.copy import copy as xlcopy
+
+
+from threading import Thread
+
 
 import json, secrets, string, time, os, io, re
 
@@ -225,6 +230,16 @@ def restore_password(request):
 
 
 def parse_pdf_file(request):
+	def create_thread(function, args = ()):
+		while True:
+			try:
+				Thread(target = function, args = args).start()
+				print('Thread created')
+				break
+			except:
+				time.sleep(3)
+
+
 	def get_pdf_data(pdf_file_name):
 		resource_manager = PDFResourceManager()
 		fake_file_handle = io.StringIO()
@@ -451,16 +466,26 @@ def parse_pdf_file(request):
 			filenames_to_parse.append(f'{media_base_dir}/{filename}')
 			FileSystemStorage().save(filename, file)
 		for filename in filenames_to_parse:
-			write_to_googlesheet(
-				get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
-				client.google_sheet_id,
-				4 * client.number_of_parsed_files + 3
+			create_thread(write_to_googlesheet,
+				(
+					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+					client.google_sheet_id,
+					4 * client.number_of_parsed_files + 3
+				)
 			)
+			time.sleep(1)
+			# write_to_googlesheet(
+			# 	get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+			# 	client.google_sheet_id,
+			# 	4 * client.number_of_parsed_files + 3
+			# )
 			client.number_of_parsed_files += 1
+		time.sleep(5)
 		client.save()
 		result = {
 			'status': 'accepted',
-			'message': 'Files parsed'
+			'message': f'{len(filenames_to_parse)} file(s) were successfully parsed.',
+			'google_sheet_id': client.google_sheet_id
 		}
 		return return_json_response(result)
 	else:

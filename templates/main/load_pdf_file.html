@@ -7,16 +7,80 @@
 			body {
 				background-color: linen;
 			}
+
+			#content {
+				position: relative;
+				left: 35%;
+			}
+
+			#pdf-file-input, #results-saved-msg {
+				display: none;
+			}
+
+			#google-sheet-link {
+				text-decoration: none;
+			}
+
+			#uploaded-files-hint, #results-saved-msg {
+				position: relative;
+				left: 5%;
+			}
+
+			#pdf-input-label {
+				position: relative;
+				left: 5%;
+				padding: 10px;
+				font-size: 1.2em;
+				color: #00802b;
+				background-color: transparent;
+				border: 1px solid #00802b;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: 0.3s;
+			}
+			#pdf-input-label:hover {
+				color: linen;
+				background-color: #00802b;
+			}
+
+			#load-file-btn {
+				padding: 10px 15px;
+				background: transparent;
+				border: 1px solid blue;
+				border-radius: 5px;
+				color: blue;
+				position: relative;
+				left: 5%;
+				transition: 0.3s;
+				display: block;
+				cursor: pointer;
+				outline: none;
+			}
+			#load-file-btn:hover {
+				background: blue;
+				border: 1px solid transparent;
+				color: white;
+			}
+
+			#result-field {
+				position: relative;
+				left: 5%;
+			}
 		</style>
 	</head>
 	<body>
 		{% include 'includes/navbar.html' with username=username status=status %}
 
-		<input type='file' name='pdf-file' id='pdf-file-input' multiple />
-		<br>
-		<br>
-		<button id='load-file-btn'>Parse files</button>
-		<p id='result-field'></p>
+		<div id='content'>
+			<!--<h2>Choose files on your computer:</h2>-->
+			<input type='file' name='pdf-file' id='pdf-file-input' multiple />
+			<label for='pdf-file-input' id='pdf-input-label'>Upload PDF-files</label>
+			<p id='uploaded-files-hint'>0 file(s) uploaded</p>
+			<br>
+			<button id='load-file-btn'>Parse files</button>
+			<p id='result-field'></p>
+			<p id='results-saved-msg'>Results were written to <a id='google-sheet-link'>the googlesheet</a></p>
+		</div>
 		<script>
 			function getCookie(name) {
 				var cookieValue = null;
@@ -34,6 +98,10 @@
 			}
 
 			$(document).ready(function(){
+				$('#pdf-file-input').change(function() {
+					$('#uploaded-files-hint').text($('#pdf-file-input').prop('files').length + ' file(s) uploaded');
+				});
+
 				$('#load-file-btn').click(function(){
 					var files = $('#pdf-file-input').prop('files'),
 						fd = new FormData;
@@ -42,10 +110,8 @@
 						fd.append('pdf-file', files[fileNum]);
 					}
 
-					/*
-					alert('goooo');
-					console.log(fd['pdf-file0']);
-					*/
+					$('#result-field').text('Parsing in process...');
+					$('#results-saved-msg').hide();
 					$.ajax({
 						url: '/api/parse_pdf/',
 						type: 'POST',
@@ -58,6 +124,8 @@
 						},
 						success: function(result){
 							$('#result-field').text(result.message);
+							$('#results-saved-msg').show();
+							$('#google-sheet-link').attr('href', 'https://docs.google.com/spreadsheets/d/' + result['google_sheet_id'] + '/edit#gid=0');
 						},
 						error: function(){
 							alert('Error in AJAX((99(((((99((');

@@ -11,6 +11,7 @@ def get_username_and_status(request):
 		'username': request.user.username,
 		'status': client.status
 	}
+	args.update(csrf(request))
 
 	return args
 
@@ -21,7 +22,7 @@ def home(request):
 
 def login(request):
 	if not request.user.is_authenticated:
-		args = get_username_and_status(request)
+		args = {}
 		args.update(csrf(request))
 
 		return render(request, 'main/login.html', args)
@@ -32,7 +33,6 @@ def login(request):
 def add_user(request):
 	if request.user.is_authenticated:
 		args = get_username_and_status(request)
-		args.update(csrf(request))
 
 		return render(request, 'main/add_user.html', args)
 	else:
@@ -42,7 +42,6 @@ def add_user(request):
 def registration(request):
 	if request.user.is_authenticated:
 		args = get_username_and_status(request)
-		args.update(csrf(request))
 
 		return render(request, 'main/registration.html', args)
 	else:
@@ -61,7 +60,6 @@ def load_pdf(request):
 		status = client.status
 
 		args = get_username_and_status(request)
-		args.update(csrf(request))
 
 		return render(request, 'main/load_pdf_file.html', args)
 	else:
