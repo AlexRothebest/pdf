@@ -390,9 +390,6 @@ def parse_pdf_file(request):
 
 		direction_api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin={}&destination={}&mode=driving&traffic_model=pessimistic&departure_time=now&key={}'.format(pi_address, di_address, google_directions_api_key).replace('#', '%23')
 		data = json.loads(requests.get(direction_api_url).text)
-		# print(json.dumps(data, indent=4))
-		# print(pi_address)
-		# print(di_address)
 		direction_length = int(data['routes'][0]['legs'][0]['distance']['text'].replace(',', '').split('mi')[0].strip())
 		origin_place_id = data['geocoded_waypoints'][0]['place_id']
 		destination_place_id = data['geocoded_waypoints'][1]['place_id']
@@ -468,7 +465,8 @@ def parse_pdf_file(request):
 		for filename in filenames_to_parse:
 			create_thread(write_to_googlesheet,
 				(
-					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+					#get_data(filename, 'https://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+					get_data(filename, 'https://pdf-parsing.herokuapp.com/media/' + '/'.join(filename.split('/')[-2:])),
 					client.google_sheet_id,
 					4 * client.number_of_parsed_files + 3
 				)
