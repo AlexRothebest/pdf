@@ -8,7 +8,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+
+ADMINS = [('Alex', 'Alex_Rozhkov@ukr.net')]
 
 
 INSTALLED_APPS = [
