@@ -49,7 +49,10 @@ def registration(request):
 
 
 def restore_password(request):
-	args = get_username_and_status(request)
+	if request.user.is_authenticated:
+		args = get_username_and_status(request)
+	else:
+		args = {}
 
 	return render(request, 'main/restore_password.html', args)
 
