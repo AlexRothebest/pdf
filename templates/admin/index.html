@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Admin</title>
+
+
+		<link rel='stylesheet' type='text/css' href='/static/css/main.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/navbar.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/admin-index.css'>
+	</head>
+	<body>
+		{% include 'includes/navbar.html' with username=username status=status %}
+
+		<table>
+			<tr>
+				<th>№</th>
+				<th>Name</th>
+				<th>Email</th>
+				<th>Status</th>
+				<th>Link to the googlesheet</th>
+				<th>Number of uploaded files</th>
+			</tr>
+			{% for client in all_clients %}
+				<tr onclick="location.href = '/admin/client/{{ client.id }}'">
+					<td class='id'><a></a></td>
+					<td>{{ client.name }} {{ client.surname }}</td>
+					<td class='email'><a href='mailto:{{ client.email }}' target='_blank'>{{ client.email }}</a></td>
+					{% if client.status == 'a' %}
+						<td>Admin</td>
+					{% else %}
+						<td>User</td>
+					{% endif %}
+					<td class='googlesheet'><a href='https://docs.google.com/spreadsheets/d/{{ client.google_sheet_id }}' target='_blank'>Link</a></td>
+					<td>{{ client.number_of_parsed_files }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>

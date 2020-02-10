@@ -1,9 +1,11 @@
 import os
 
-import django_heroku
+# import django_heroku
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+SECRET_KEY = 'd64^bzjn+n599*#4-%3+56!up13sa=e#^h1mqfx2s7_q-ntmg1'
 
 
 DEBUG = True
@@ -94,9 +96,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'django static files'),)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 
 MEDIA_URL = '/media/'
@@ -104,10 +106,12 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-try:
-    from .local_settings import *
-except ImportError:
-    print("\n\nCan't import local settings!!!\n\n")
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'lqlqlololala@gmail.com'
+EMAIL_HOST_PASSWORD = 'lzlxlclv'
+DEFAULT_FROM_EMAIL = 'Alex'
+DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
 
-
-django_heroku.settings(locals())
+# django_heroku.settings(locals())

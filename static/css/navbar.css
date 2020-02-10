@@ -1,0 +1,37 @@
+nav {
+	margin: -8px -8px 50px -8px;
+	position: sticky;
+}
+
+nav ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	overflow: hidden;
+	background-color: #b3cccc;
+}
+
+nav ul div li {
+	display: inline;
+}
+
+nav ul div li a {
+	display: inline-block;
+	padding: 15px;
+	color: black;
+	text-decoration: none;
+	transition: 0.3s;
+}
+
+nav ul div li a:hover {
+	color: #e60000;
+	text-shadow: 0 0 3px #e60000;
+}
+
+nav ul div.nav_left li {
+	float: left;
+}
+
+nav ul div.nav_right li {
+	float: right;
+}

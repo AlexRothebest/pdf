@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Client - {{ client_info.name }} {{ client_info.username }}</title>
+
+
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+
+
+		<link rel='stylesheet' type='text/css' href='/static/css/main.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/navbar.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/client-info.css'>
+	</head>
+	<body>
+		{% include 'includes/navbar.html' with username=username status=status %}
+
+		<table>
+			<tr>
+				<th>Name</th>
+				<td>{{ client_info.name }} {{ client_info.surname }}</td>
+			</tr>
+			<tr>
+				<th>Email</th>
+				<td class='email'><a href='mailto:{{ client_info.email }}' target='_blank'>{{ client_info.email }}</a></td>
+			</tr>
+			<tr>
+				<th>Status</th>
+				<td>
+					<label for='status_user' class='radio'>
+						{% if client_info.status == 'u' %}
+							<input type='radio' name='status' id='status_user' checked>
+						{% else %}
+							<input type='radio' name='status' id='status_user'>
+						{% endif %}
+						<a>User</a>
+					</label>
+					<label for='status_admin' class='radio'>
+						{% if client_info.status == 'a' %}
+							<input type='radio' name='status' id='status_admin' checked>
+						{% else %}
+							<input type='radio' name='status' id='status_admin'>
+						{% endif %}
+						<a>Admin</a>
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<th>Link to the googlesheet</th>
+				<td class='googlesheet'><a href='https://docs.google.com/spreadsheets/d/{{ client_info.google_sheet_id }}' target='_blank'>Link</a></td>
+			</tr>
+			<tr>
+				<th>Number of uploaded files</th>
+				<td>{{ client_info.number_of_parsed_files }}</td>
+			</tr>
+		</table>
+
+
+		<script src='/static/js/client-info.js'></script>
+	</body>
+</html>

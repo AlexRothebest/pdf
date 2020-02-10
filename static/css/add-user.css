@@ -1,0 +1,71 @@
+#fieldset {
+	margin: 50px;
+	align-items: right;
+	border: 3px solid green;
+	border-radius: 10px;
+	padding: 20px;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-70%);
+}
+
+#fieldset input, select {
+	margin: 12px;
+	border-radius: 3px;
+	border: 1px solid black;
+	height: 22px;
+	width: 220px;
+}
+
+#register_button {
+	width: 80px;
+	height: 30px;
+	background: transparent;
+	border: 1px solid blue;
+	border-radius: 5px;
+	color: blue;
+	position: relative;
+	margin: 10px;
+	left: 50%;
+	transform: translateX(-70%);
+	transition: 0.3s;
+	display: block;
+	cursor: pointer;
+}
+#register_button:hover {
+	background: blue;
+	border: 1px solid transparent;
+	color: white;
+}
+
+#legend {
+	color: #cc00ff;
+	font-size: 20px;
+}
+#validation_error_msg, #passwords_dont_match_error_msg, #error_msg_container {
+	color: #ff0000;
+	font-size: 15px;
+	display: none;
+	position: relative;
+	right: 50%;
+	transition: translateX(-50%);
+}
+#passwords_dont_match_error_msg {
+	right: 86px;
+}
+
+#wait_msg {
+	display: none;
+	position: relative;
+	right: 50%;
+	transition: translateX(-50%);
+}
+
+select, #status_text {
+	position: relative;
+	right: -4px;
+}
+select {
+	height: 25px;
+	width: 222px;
+}

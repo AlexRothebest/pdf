@@ -2,77 +2,20 @@
 <html>
 	<head>
 		<title>Load PDF file</title>
+
+
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<style>
-			body {
-				background-color: linen;
-			}
 
-			#content {
-				position: relative;
-				left: 35%;
-			}
 
-			#pdf-file-input, #results-saved-msg {
-				display: none;
-			}
-
-			#google-sheet-link {
-				text-decoration: none;
-			}
-
-			#uploaded-files-hint, #results-saved-msg {
-				position: relative;
-				left: 5%;
-			}
-
-			#pdf-input-label {
-				position: relative;
-				left: 5%;
-				padding: 10px;
-				font-size: 1.2em;
-				color: #00802b;
-				background-color: transparent;
-				border: 1px solid #00802b;
-				border-radius: 5px;
-				cursor: pointer;
-				transition: 0.3s;
-			}
-			#pdf-input-label:hover {
-				color: linen;
-				background-color: #00802b;
-			}
-
-			#load-file-btn {
-				padding: 10px 15px;
-				background: transparent;
-				border: 1px solid blue;
-				border-radius: 5px;
-				color: blue;
-				position: relative;
-				left: 5%;
-				transition: 0.3s;
-				display: block;
-				cursor: pointer;
-				outline: none;
-			}
-			#load-file-btn:hover {
-				background: blue;
-				border: 1px solid transparent;
-				color: white;
-			}
-
-			#result-field {
-				position: relative;
-				left: 5%;
-			}
-		</style>
+		<link rel='stylesheet' type='text/css' href='/static/css/main.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/navbar.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/load-pdf-file.css'>
 	</head>
 	<body>
 		{% include 'includes/navbar.html' with username=username status=status %}
 
+
 		<div id='content'>
-			<!--<h2>Choose files on your computer:</h2>-->
 			<input type='file' name='pdf-file' id='pdf-file-input' multiple />
 			<label for='pdf-file-input' id='pdf-input-label'>Upload PDF-files</label>
 			<p id='uploaded-files-hint'>0 file(s) uploaded</p>
@@ -81,58 +24,8 @@
 			<p id='result-field'></p>
 			<p id='results-saved-msg'>Results were written to <a id='google-sheet-link'>the googlesheet</a></p>
 		</div>
-		<script>
-			function getCookie(name) {
-				var cookieValue = null;
-				if (document.cookie && document.cookie !== '') {
-					var cookies = document.cookie.split(';');
-					for (var i = 0; i < cookies.length; i++) {
-						var cookie = cookies[i].trim();
-						if (cookie.substring(0, name.length + 1) === (name + '=')) {
-							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-							break;
-						}
-					}
-				}
-				return cookieValue;
-			}
 
-			$(document).ready(function(){
-				$('#pdf-file-input').change(function() {
-					$('#uploaded-files-hint').text($('#pdf-file-input').prop('files').length + ' file(s) uploaded');
-				});
 
-				$('#load-file-btn').click(function(){
-					var files = $('#pdf-file-input').prop('files'),
-						fd = new FormData;
-
-					for (let fileNum in files) {
-						fd.append('pdf-file', files[fileNum]);
-					}
-
-					$('#result-field').text('Parsing in process...');
-					$('#results-saved-msg').hide();
-					$.ajax({
-						url: '/api/parse_pdf/',
-						type: 'POST',
-						async: true,
-						data: fd,
-						processData: false,
-						contentType: false,
-						headers: {
-							'X-CSRFToken': getCookie('csrftoken')
-						},
-						success: function(result){
-							$('#result-field').text(result.message);
-							$('#results-saved-msg').show();
-							$('#google-sheet-link').attr('href', 'https://docs.google.com/spreadsheets/d/' + result['google_sheet_id'] + '/edit#gid=0');
-						},
-						error: function(){
-							alert('Error in AJAX((99(((((99((');
-						}
-					})
-				});
-			});
-		</script>
+		<script src='/static/js/load-pdf-file.js'></script>
 	</body>
 </html>

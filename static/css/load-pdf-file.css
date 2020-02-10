@@ -1,0 +1,58 @@
+#content {
+	position: relative;
+	left: 35%;
+}
+
+#pdf-file-input, #results-saved-msg {
+	display: none;
+}
+
+#google-sheet-link {
+	text-decoration: none;
+}
+
+#uploaded-files-hint, #results-saved-msg {
+	position: relative;
+	left: 5%;
+}
+
+#pdf-input-label {
+	position: relative;
+	left: 5%;
+	padding: 10px;
+	font-size: 1.2em;
+	color: #00802b;
+	background-color: transparent;
+	border: 1px solid #00802b;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: 0.3s;
+}
+#pdf-input-label:hover {
+	color: linen;
+	background-color: #00802b;
+}
+
+#load-file-btn {
+	padding: 10px 15px;
+	background: transparent;
+	border: 1px solid blue;
+	border-radius: 5px;
+	color: blue;
+	position: relative;
+	left: 5%;
+	transition: 0.3s;
+	display: block;
+	cursor: pointer;
+	outline: none;
+}
+#load-file-btn:hover {
+	background: blue;
+	border: 1px solid transparent;
+	color: white;
+}
+
+#result-field {
+	position: relative;
+	left: 5%;
+}

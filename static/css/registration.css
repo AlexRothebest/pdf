@@ -1,0 +1,58 @@
+#fieldset {
+	margin: 50px;
+	align-items: right;
+	border: 3px solid green;
+	border-radius: 10px;
+	padding: 20px;
+	position: absolute;
+	left: 360px;
+}
+#error_container {
+	text-align: center;
+}
+
+#fieldset input {
+	margin: 12px;
+	border-radius: 3px;
+	border: 1px solid black;
+	height: 18px;
+}
+
+#register_button {
+	width: 80px;
+	height: 30px;
+	background: transparent;
+	border: 1px solid blue;
+	border-radius: 5px;
+	color: blue;
+	position: relative;
+	margin: 10px;
+	left: 110px;
+	transition: 0.3s;
+	display: block;
+	cursor: pointer;
+}
+#register_button:hover {
+	background: blue;
+	border: 1px solid transparent;
+	color: white;
+}
+
+#legend {
+	color: #cc00ff;
+	font-size: 20px;
+}
+#validation_error_msg, #passwords_dont_match_error_msg, #error_msg_container {
+	color: #ff0000;
+	font-size: 15px;
+	display: none;
+}
+#passwords_dont_match_error_msg {
+	right: 86px;
+}
+
+#wait_msg {
+	display: none;
+	position: relative;
+	left: -120px;
+}

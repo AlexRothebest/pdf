@@ -1,66 +1,21 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<style>
-			nav {
-				margin: -8px -8px 50px -8px;
-				position: sticky;
-			}
-
-			nav ul {
-				margin: 0;
-				padding: 0;
-				list-style-type: none;
-				overflow: hidden;
-				background-color: #b3cccc;
-			}
-
-			nav ul div li {
-				display: inline;
-			}
-
-			nav ul div li a {
-				display: inline-block;
-				padding: 15px;
-				color: black;
-				text-decoration: none;
-				transition: 0.3s;
-			}
-
-			nav ul div li a:hover {
-				color: #e60000;
-				text-shadow: 0 0 3px #e60000;
-			}
-
-			nav ul div.nav_left li {
-				float: left;
-			}
-
-			nav ul div.nav_right li {
-				float: right;
-			}
-		</style>
-	</head>
-	<body>
-		<nav>
-			<ul>
-				<div class = 'nav_left'>
-					{% if username %}
-						<li><a href = '/'>Home</a></li>
-						{% if status == 'a' %}
-							<li><a href = '/add_user/'>Add new user</a></li>
-						{% endif %}
-						<li><a href = '/api/logout/'>Logout ({{ username }})</a></li>
-					{% else %}
-						<li><a href = '/login/'>Login</a></li>
-					{% endif %}
-				</div>
-				<div class = 'nav_right'>
-					{% if username and status == 'a' %}
-						<li><a href = '/django_admin/main/client/' target='_blank'>Admin</a></li>
-					{% endif %}
-				</div>
-			</ul>
-		</nav>
-	</body>
-</html>
+<nav>
+	<ul>
+		<div class = 'nav_left'>
+			{% if username %}
+				<li><a href = '/'>Home</a></li>
+				{% if status == 'a' %}
+					<li><a href = '/add_user/'>Add new user</a></li>
+				{% endif %}
+				<li><a href = '/api/logout/'>Logout ({{ username }})</a></li>
+			{% else %}
+				<li><a href = '/login/'>Login</a></li>
+				<li><a href = '/registration/'>Registration</a></li>
+			{% endif %}
+		</div>
+		<div class = 'nav_right'>
+			{% if username and status == 'a' %}
+				<li><a href = '/admin/' target='_blank'>Admin</a></li>
+			{% endif %}
+		</div>
+	</ul>
+</nav>

@@ -40,12 +40,10 @@ def add_user(request):
 
 
 def registration(request):
-	if request.user.is_authenticated:
-		args = get_username_and_status(request)
+	args = {}
+	args.update(csrf(request))
 
-		return render(request, 'main/registration.html', args)
-	else:
-		return redirect('/')
+	return render(request, 'main/registration.html', args)
 
 
 def restore_password(request):

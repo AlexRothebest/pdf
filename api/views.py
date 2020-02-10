@@ -107,78 +107,75 @@ def logout(request):
 
 
 def add_user(request):
-	if request.user.is_authenticated:
-		if request.is_ajax() and request.method == 'POST':
-			name = request.POST['name']
-			surname = request.POST['surname']
-			email = request.POST['email'].lower()
-			status = request.POST['status']
-			username = request.POST['username']
-			password = request.POST['password']
-			google_sheet_id = request.POST['google-sheet-id']
+	if request.is_ajax() and request.method == 'POST':
+		name = request.POST['name']
+		surname = request.POST['surname']
+		email = request.POST['email'].lower()
+		status = request.POST['status']
+		username = request.POST['username']
+		password = request.POST['password']
+		google_sheet_id = request.POST['google-sheet-id']
 
+		if request.user.is_authenticated:
 			client = Client.objects.get(account = request.user)
 			if client.status != 'a':
 				status = 'user'
-
-			if len(User.objects.filter(username = username)) != 0:
-				result = {
-					'status': 'Not accepted',
-					'message': 'Existing username'
-				}
-				return return_json_response(result)
-			elif len(Client.objects.filter(email = email)) != 0:
-				result = {
-					'status': 'Not accepted',
-					'message': 'Existing email'
-				}
-				return return_json_response(result)
-			else:
-				html_message = 'Congratulations, {}!<br><br>\
-								Somebody (probably you) registered you in our\
-								<a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
-								Your username: {}<br>\
-								Your password: {}<br><br>\
-								Enjoy!'.format(name, username, password)
-				send_mail('Account verification', 'Lol', 'Kek', [email], html_message = html_message)
-
-				new_user = User.objects.create_user(username = username,
-													password = password)
-				if status == 'admin':
-					new_user.is_staff = True
-				new_user.save()
-
-				if not request.user.is_authenticated:
-					auth.login(request, new_user)
-
-				new_client = Client(
-					name = name,
-					surname = surname,
-					email = email,
-					status = status[0],
-					account = new_user,
-					google_sheet_id = google_sheet_id
-					)
-				new_client.save()
-				print('\n\nNew client was created\n\n')
-
-				result = {
-					'status': 'accepted',
-					'message': 'OK'
-				}
-				return return_json_response(result, 201)
 		else:
+			status = 'user'
+
+		# if len(User.objects.filter(username = username)) != 0:
+		# 	result = {
+		# 		'status': 'Not accepted',
+		# 		'message': 'This username is already taken'
+		# 	}
+		# 	return return_json_response(result)
+		# elif len(Client.objects.filter(email = email)) != 0:
+		# 	result = {
+		# 		'status': 'Not accepted',
+		# 		'message': 'This email is already taken'
+		# 	}
+		# 	return return_json_response(result)
+		# else:
+		if True:
+			html_message = 'Congratulations, {}!<br><br>\
+							Somebody (probably you) registered you in our\
+							<a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
+							Your username: {}<br>\
+							Your password: {}<br><br>\
+							Enjoy!'.format(name, username, password)
+			send_mail('Account verification', 'Lol', 'Kek', [email], html_message = html_message)
+
+			new_user = User.objects.create_user(username = username,
+												password = password)
+			if status == 'admin':
+				new_user.is_staff = True
+			new_user.save()
+
+			if not request.user.is_authenticated:
+				auth.login(request, new_user)
+
+			new_client = Client(
+				name = name,
+				surname = surname,
+				email = email,
+				status = status[0],
+				account = new_user,
+				google_sheet_id = google_sheet_id
+				)
+			new_client.save()
+			print('\n\nNew client was created\n\n')
+
 			result = {
-				'status': 'Not accepted',
-				'message': 'Wrong method'
+				'status': 'accepted',
+				'message': 'OK'
 			}
-			return return_json_response(result, 400)
+			return return_json_response(result, 201)
 	else:
 		result = {
 			'status': 'Not accepted',
-			'message': 'Authentication required'
+			'message': 'Wrong method'
 		}
-		return return_json_response(result, 401)
+		return return_json_response(result, 400)
 
 
 def restore_password(request):
@@ -463,20 +460,20 @@ def parse_pdf_file(request):
 			filenames_to_parse.append('{}/{}'.format(media_base_dir, filename))
 			FileSystemStorage().save(filename, file)
 		for filename in filenames_to_parse:
-			create_thread(write_to_googlesheet,
-				(
-					#get_data(filename, 'https://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
-					get_data(filename, 'https://pdf-parsing.herokuapp.com/media/' + '/'.join(filename.split('/')[-2:])),
-					client.google_sheet_id,
-					4 * client.number_of_parsed_files + 3
-				)
-			)
-			time.sleep(1)
-			# write_to_googlesheet(
-			# 	get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
-			# 	client.google_sheet_id,
-			# 	4 * client.number_of_parsed_files + 3
+			# create_thread(write_to_googlesheet,
+			# 	(
+			# 		#get_data(filename, 'https://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+			# 		get_data(filename, 'https://pdf-parsing.herokuapp.com/media/' + '/'.join(filename.split('/')[-2:])),
+			# 		client.google_sheet_id,
+			# 		4 * client.number_of_parsed_files + 3
+			# 	)
 			# )
+			# time.sleep(1)
+			write_to_googlesheet(
+				get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+				client.google_sheet_id,
+				4 * client.number_of_parsed_files + 3
+			)
 			client.number_of_parsed_files += 1
 		time.sleep(5)
 		client.save()
