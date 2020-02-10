@@ -15,6 +15,9 @@
 		{% include 'includes/navbar.html' with username=username status=status %}
 
 
+		{% csrf_token %}
+
+
 		<fieldset id = 'fieldset' align = 'right'>
 			<legend align = 'center' id = 'legend'><a>Attention! All fields are required!</a></legend>
 			<a>Name:</a><input type = 'text' name = 'name' id = 'name_field' required><br>

@@ -4,6 +4,9 @@
 		<title>Admin</title>
 
 
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+
+
 		<link rel='stylesheet' type='text/css' href='/static/css/main.css'>
 		<link rel='stylesheet' type='text/css' href='/static/css/navbar.css'>
 		<link rel='stylesheet' type='text/css' href='/static/css/admin-index.css'>
@@ -11,29 +14,58 @@
 	<body>
 		{% include 'includes/navbar.html' with username=username status=status %}
 
+
+		{% csrf_token %}
+
+
+		<div id='head'>
+			<a>Search: </a><input id='search-input' placeholder='Search...'>
+			<button id='save-btn'>Save changes</button>
+		</div>
+
+
 		<table>
 			<tr>
 				<th>№</th>
 				<th>Name</th>
+				<th>Username</th>
 				<th>Email</th>
 				<th>Status</th>
-				<th>Link to the googlesheet</th>
-				<th>Number of uploaded files</th>
+				<th>Link to the<br>googlesheet</th>
+				<th>Number of<br>uploaded files</th>
 			</tr>
 			{% for client in all_clients %}
-				<tr onclick="location.href = '/admin/client/{{ client.id }}'">
-					<td class='id'><a></a></td>
-					<td>{{ client.name }} {{ client.surname }}</td>
+				<tr class='client-info-block'>
+					<td class='id' onclick="window.open('/admin/client/{{ client.id }}', '_blank')	"><a></a></td>
+					<td class='name' onclick="window.open('/admin/client/{{ client.id }}', '_blank')">{{ client.name }} {{ client.surname }}</td>
+					<td class='username' onclick="window.open('/admin/client/{{ client.id }}', '_blank')">{{ client.account.username }}</td>
 					<td class='email'><a href='mailto:{{ client.email }}' target='_blank'>{{ client.email }}</a></td>
-					{% if client.status == 'a' %}
-						<td>Admin</td>
-					{% else %}
-						<td>User</td>
-					{% endif %}
+					<td>
+						<label for='status{{ client.id }}-user' class='radio'>
+							{% if client.status == 'u' %}
+								<input type='radio' name='client{{ client.id }}-status' id='status{{ client.id }}-user' class='client-status-input' client-id='{{ client.id }}' value='user' checked>
+							{% else %}
+								<input type='radio' name='client{{ client.id }}-status' id='status{{ client.id }}-user' class='client-status-input' client-id='{{ client.id }}' value='user'>
+							{% endif %}
+							<a>User</a>
+						</label>
+						<br>
+						<label for='status{{ client.id }}-admin' class='radio'>
+							{% if client.status == 'a' %}
+								<input type='radio' name='client{{ client.id }}-status' id='status{{ client.id }}-admin' class='client-status-input' client-id='{{ client.id }}' value='admin' checked>
+							{% else %}
+								<input type='radio' name='client{{ client.id }}-status' id='status{{ client.id }}-admin' class='client-status-input' client-id='{{ client.id }}' value='admin'>
+							{% endif %}
+							<a>Admin</a>
+						</label>
+					</td>
 					<td class='googlesheet'><a href='https://docs.google.com/spreadsheets/d/{{ client.google_sheet_id }}' target='_blank'>Link</a></td>
 					<td>{{ client.number_of_parsed_files }}</td>
 				</tr>
 			{% endfor %}
 		</table>
+
+
+		<script src='/static/js/admin-index.js'></script>
 	</body>
 </html>

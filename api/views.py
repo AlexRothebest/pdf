@@ -213,6 +213,7 @@ def restore_password(request):
 		user.save()
 
 		send_mail('Restoring password', '', '', [email], html_message = 'Hello, ' + name + '!<br><br>Your new password: ' + new_password + '<br><br>Enjoy!')
+
 		result = {
 			'status': 'accepted',
 			'message': ''
@@ -224,6 +225,35 @@ def restore_password(request):
 			'message': 'Wrong method'
 		}
 		return return_json_response(result, 400)
+
+
+def change_clients_data(request):
+	if request.user.is_authenticated:
+		if request.is_ajax() and request.method == 'POST':
+			client = Client.objects.get(account = request.user)
+			if client.status != 'a':
+				result = {
+					'status': 'Not accepted',
+					'message': 'Permission denied'
+				}
+				return return_json_response(result, 403)
+
+			for client_id, new_status in request.POST.items():
+				client_to_change = Client.objects.get(id=int(client_id))
+				client_to_change.status = new_status[0]
+				client_to_change.save()
+
+			result = {
+				'status': 'accepted',
+				'message': ''
+			}
+			return return_json_response(result)
+		else:
+			result = {
+				'status': 'Not accepted',
+				'message': 'Wrong method'
+			}
+			return return_json_response(result, 400)
 
 
 def parse_pdf_file(request):
@@ -454,8 +484,9 @@ def parse_pdf_file(request):
 
 	if request.user.is_authenticated:
 		client = Client.objects.get(account = request.user)
+		number_of_error_files = 0
 		filenames_to_parse = []
-		for file in request.FILES.getlist('pdf-file'):
+		for file in request.FILES.getlist('pdf-file')[:100]:
 			filename = '{}/{}-{}'.format(client.account.username, time.time(), file.name)
 			filenames_to_parse.append('{}/{}'.format(media_base_dir, filename))
 			FileSystemStorage().save(filename, file)
@@ -469,19 +500,24 @@ def parse_pdf_file(request):
 			# 	)
 			# )
 			# time.sleep(1)
-			write_to_googlesheet(
-				get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
-				client.google_sheet_id,
-				4 * client.number_of_parsed_files + 3
-			)
-			client.number_of_parsed_files += 1
+			try:
+				write_to_googlesheet(
+					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+					client.google_sheet_id,
+					4 * client.number_of_parsed_files + 3
+				)
+				client.number_of_parsed_files += 1
+			except:
+				number_of_error_files += 1
 		time.sleep(5)
 		client.save()
 		result = {
 			'status': 'accepted',
-			'message': '{} file(s) were successfully parsed.'.format(len(filenames_to_parse)),
+			'message': '{} file(s) were parsed successfully'.format(len(filenames_to_parse) - number_of_error_files),
 			'google_sheet_id': client.google_sheet_id
 		}
+		if number_of_error_files > 0:
+			result['message'] += f', {number_of_error_files} file(s) were not parsed'
 		return return_json_response(result)
 	else:
 		result = {

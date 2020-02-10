@@ -17,6 +17,7 @@
 }
 
 #pdf-input-label {
+	margin-top: 40px;
 	position: relative;
 	left: 5%;
 	padding: 10px;
@@ -52,7 +53,8 @@
 	color: white;
 }
 
-#result-field {
+.result-text {
+	text-decoration: none;
 	position: relative;
 	left: 5%;
 }

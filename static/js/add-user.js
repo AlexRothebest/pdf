@@ -13,6 +13,7 @@ function getCookie(name) {
 	return cookieValue;
 }
 
+
 $(document).ready(function() {
 	$('#register_button').click(function() {
 		function valid(inputFieldId) {
@@ -44,7 +45,8 @@ $(document).ready(function() {
 		}
 
 		for (let i = 0; i < allInputs.length - 1; i++) {
-			isValid = valid(allInputs[i].id);
+			let id = $('input').get(i).id;
+			isValid = valid(id);
 			dataValid = dataValid && isValid;
 		}
 
@@ -69,8 +71,6 @@ $(document).ready(function() {
 					'google-sheet-id': googleSheetId
 				}
 
-				// alert('AJAX will be executed now');
-
 				$.ajax({
 					type: 'POST',
 					async: true,
@@ -92,8 +92,8 @@ $(document).ready(function() {
 						alert('Error in AJAX((99(((((99((');
 						$('#wait_msg').hide();
 					}
-				})
+				});
 			}
 		}
-	})
+	});
 });

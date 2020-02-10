@@ -9,7 +9,8 @@ def get_username_and_status(request):
 
 	args = {
 		'username': request.user.username,
-		'status': client.status
+		'status': client.status,
+		'client': client
 	}
 	args.update(csrf(request))
 
@@ -57,9 +58,6 @@ def restore_password(request):
 
 def load_pdf(request):
 	if request.user.is_authenticated:
-		client = Client.objects.get(account = request.user)
-		status = client.status
-
 		args = get_username_and_status(request)
 
 		return render(request, 'main/load_pdf_file.html', args)

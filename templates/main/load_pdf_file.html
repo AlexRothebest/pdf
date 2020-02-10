@@ -15,14 +15,22 @@
 		{% include 'includes/navbar.html' with username=username status=status %}
 
 
+		{% csrf_token %}
+
+
 		<div id='content'>
 			<input type='file' name='pdf-file' id='pdf-file-input' multiple />
 			<label for='pdf-file-input' id='pdf-input-label'>Upload PDF-files</label>
 			<p id='uploaded-files-hint'>0 file(s) uploaded</p>
 			<br>
 			<button id='load-file-btn'>Parse files</button>
-			<p id='result-field'></p>
-			<p id='results-saved-msg'>Results were written to <a id='google-sheet-link'>the googlesheet</a></p>
+			<br>
+			<a class='result-text' href='https://docs.google.com/spreadsheets/d/{{ client.google_sheet_id }}/edit#gid=0' target='_blank'>Link to your googlesheet</a>
+			<br>
+			<p id='result-field' class='result-text'></p>
+			<!--
+			<p id='results-saved-msg'>Results were written to <a id='google-sheet-link' target='_blank'>the googlesheet</a></p>
+			-->
 		</div>
 
 

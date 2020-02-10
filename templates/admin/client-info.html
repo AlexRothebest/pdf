@@ -14,10 +14,18 @@
 	<body>
 		{% include 'includes/navbar.html' with username=username status=status %}
 
+
+		{% csrf_token %}
+
+
 		<table>
 			<tr>
 				<th>Name</th>
 				<td>{{ client_info.name }} {{ client_info.surname }}</td>
+			</tr>
+			<tr>
+				<th>Username</th>
+				<td>{{ client_info.account.username }}</td>
 			</tr>
 			<tr>
 				<th>Email</th>
@@ -26,19 +34,19 @@
 			<tr>
 				<th>Status</th>
 				<td>
-					<label for='status_user' class='radio'>
+					<label for='status-user' class='radio'>
 						{% if client_info.status == 'u' %}
-							<input type='radio' name='status' id='status_user' checked>
+							<input type='radio' name='client-status' id='status-user' value='user' checked>
 						{% else %}
-							<input type='radio' name='status' id='status_user'>
+							<input type='radio' name='client-status' id='status-user' value='user'>
 						{% endif %}
 						<a>User</a>
 					</label>
-					<label for='status_admin' class='radio'>
+					<label for='status-admin' class='radio'>
 						{% if client_info.status == 'a' %}
-							<input type='radio' name='status' id='status_admin' checked>
+							<input type='radio' name='client-status' id='status-admin' value='admin' checked>
 						{% else %}
-							<input type='radio' name='status' id='status_admin'>
+							<input type='radio' name='client-status' id='status-admin' value='admin'>
 						{% endif %}
 						<a>Admin</a>
 					</label>
@@ -53,6 +61,8 @@
 				<td>{{ client_info.number_of_parsed_files }}</td>
 			</tr>
 		</table>
+
+		<button id='save-btn'>Save changes</button>
 
 
 		<script src='/static/js/client-info.js'></script>

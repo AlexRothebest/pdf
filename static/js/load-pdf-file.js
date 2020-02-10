@@ -46,6 +46,6 @@ $(document).ready(function(){
 			error: function(){
 				alert('Error in AJAX((99(((((99((');
 			}
-		})
+		});
 	});
 });
