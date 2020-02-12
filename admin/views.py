@@ -26,7 +26,7 @@ def home(request):
 		args = get_username_and_status(request)
 		args['all_clients'] = Client.objects.all()
 
-		return render(request, 'admin/index.html', args)
+		return render(request, 'myadmin/index.html', args)
 	else:
 		return redirect('/')
 
@@ -41,6 +41,6 @@ def client_info(request, client_id):
 		args = get_username_and_status(request)
 		args['client_info'] = Client.objects.get(id=client_id)
 
-		return render(request, 'admin/client-info.html', args)
+		return render(request, 'myadmin/client-info.html', args)
 	else:
 		return redirect('/')

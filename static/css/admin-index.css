@@ -81,7 +81,7 @@ td.googlesheet {
 	border-radius: 5px;
 	transition-duration: 0.3s;
 	outline: none;
-	width: 15%;
+	width: 14%;
 }
 #search-input:focus {
 	width: 27%;

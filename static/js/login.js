@@ -48,7 +48,7 @@ function authenticateUser() {
 }
 
 $(document).ready(function () {
-	$('#register_button').click(authenticateUser);
+	$('#login-btn').click(authenticateUser);
 	$('input').keyup(function(e) {
 		if (e.keyCode == 13) {
 			authenticateUser();

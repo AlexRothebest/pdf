@@ -2,3 +2,8 @@ body {
 	background-color: linen;
 	margin: 0;
 }
+
+
+a[href] {
+	text-decoration: none;
+}

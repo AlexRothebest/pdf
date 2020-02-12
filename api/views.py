@@ -39,6 +39,8 @@ try:
 		]
 	)
 except:
+	print('Looks like you are using not Windows')
+
 	creds_file_path = os.path.join(settings.BASE_DIR, 'api/creds.json')
 
 	credentials = ServiceAccountCredentials.from_json_keyfile_name(
@@ -107,6 +109,40 @@ def logout(request):
 
 
 def add_user(request):
+	def init_googlesheet(sheet_id):
+		global service
+
+		to_write_values = [[
+			'Broker',
+			'Order ID',
+			'Broker phone',
+			'Vehicle',
+			'Cost $',
+			'Miles',
+			'From Address',
+			'Pickup Phone',
+			'Pick Up Date',
+			'To',
+			'Receiver phone',
+			'Deliver Date',
+			'Disp Sheet',
+			'BOL'
+		]]
+		values = service.spreadsheets().values().batchUpdate(
+			spreadsheetId=sheet_id,
+			body={
+				'valueInputOption': 'USER_ENTERED',
+				'data': [
+					{
+						'majorDimension': 'ROWS',
+						'range': 'A1:X2',
+						'values': to_write_values
+					}
+				]
+			}
+		).execute()
+
+
 	if request.is_ajax() and request.method == 'POST':
 		name = request.POST['name']
 		surname = request.POST['surname']
@@ -137,6 +173,15 @@ def add_user(request):
 		# 	return return_json_response(result)
 		# else:
 		if True:
+			try:
+				init_googlesheet(google_sheet_id)
+			except:
+				result = {
+					'status': 'Error',
+					'message': "Sorry, but  it looks like you haven't prepared your googlesheet to the work correctly... Please, follow the instructions left of this form"
+				}
+				return return_json_response(result)
+
 			html_message = 'Congratulations, {}!<br><br>\
 							Somebody (probably you) registered you in our\
 							<a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
@@ -183,6 +228,8 @@ def restore_password(request):
 
 	if request.is_ajax() and request.method == 'POST':
 		try:
+			print(f'Restoring password by username {username}')
+
 			username = request.POST['username']
 			if len(User.objects.filter(username = username)) == 0:
 				result = {
@@ -197,6 +244,8 @@ def restore_password(request):
 				email = client.email
 				success = True
 		except:
+			print(f'Restoring password by email {email}')
+
 			email = request.POST['email'].lower()
 			if len(Client.objects.filter(email = email)) == 0:
 				result = {
@@ -257,6 +306,10 @@ def change_clients_data(request):
 
 
 def parse_pdf_file(request):
+	class Vehicle():
+		pass
+
+
 	def create_thread(function, args = ()):
 		while True:
 			try:
@@ -359,7 +412,7 @@ def parse_pdf_file(request):
 		delivery_estimated = gft(text, ':', 'Ship Via:', text.find('Delivery'))
 		ship_via = gft(text, 'Ship Via:', 'Condition:')
 		condition = gft(text, 'Condition:', 'Price')
-		price = max([float(s) for s in re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
+		price = max([float(s.replace(',', '')) for s in re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
 					 gft(text, ':', ' ', text.find('Price'), text.find(':', text.find('Company*')) + 2))])
 		company_name = gft(text, 'Dispatch Sheet',\
 						   re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
@@ -388,17 +441,30 @@ def parse_pdf_file(request):
 				company_contact_phone = gft(text, 'Phone:', 'Vehicle Information', text.find('Dispatch InfoContact:'))
 				company_mc = ''
 			fax = ''
-		vehicle_name = gft(text, '1', 'Type:', text.find('Vehicle Information'))
-		vehicle_type = gft(text, 'Type:', 'Color:', text.find('Vehicle Information'))
-		vehicle_color = gft(text, 'Color:', 'Plate:', text.find('Vehicle Information'))
-		vehicle_plate = gft(text, 'Plate:', 'VIN:', text.find('Vehicle Information'))
-		vehicle_vin = gft(text, 'VIN:', 'Lot #:', text.find('Vehicle Information'))
-		try:
-			vehicle_lot = gft(text, 'Lot #:', 'Additional Info:', text.find('Vehicle Information'))
-			vehicle_additional_info = gft(text, 'Additional Info:', 'Pickup Information', text.find('Vehicle Information'))
-		except:
-			vehicle_lot = gft(text, 'Lot #:', 'AdditionalInfo:', text.find('Vehicle Information'))
-			vehicle_additional_info = gft(text, 'AdditionalInfo:', 'Pickup Information', text.find('Vehicle Information'))
+		vehicles = []
+		for vehicle_number in range(100):
+			print(vehicle_number)
+			vehicle = Vehicle()
+			vehicle.name = gft(text, str(vehicle_number), 'Type:', text.find('Vehicle Information'))
+			vehicle.type = gft(text, 'Type:', 'Color:', text.find('Vehicle Information'))
+			vehicle.color = gft(text, 'Color:', 'Plate:', text.find('Vehicle Information'))
+			vehicle.plate = gft(text, 'Plate:', 'VIN:', text.find('Vehicle Information'))
+			vehicle.vin = gft(text, 'VIN:', 'Lot #:', text.find('Vehicle Information'))
+			try:
+				try:
+					vehicle.lot = gft(text, 'Lot #:', 'Additional Info:', text.find('Vehicle Information'))
+					vehicle.additional_info = gft(text, 'Additional Info:', 'Pickup Information', text.find('Vehicle Information'))
+				except:
+					vehicle.lot = gft(text, 'Lot #:', 'AdditionalInfo:', text.find('Vehicle Information'))
+					vehicle.additional_info = gft(text, 'AdditionalInfo:', 'Pickup Information', text.find('Vehicle Information'))
+				if 'AdditionalInfo:' in vehicle.additional_info:
+					a = 1 / 0
+				vehicles.append(vehicle)
+				break
+			except:
+				vehicles.append(vehicle)
+				break
+
 		# pi - Pickup information
 		pi_address = extract_address(gft(text, 'Name:', 'Phone:', text.find('Pickup Information')).split(':')[-1])
 		try:
@@ -415,6 +481,7 @@ def parse_pdf_file(request):
 			di_phones = [gft(text, 'Phone:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information')), '']
 		emails = re.findall(r'[\w\.-]+@[\w\.-]+', text[text.find('DISPATCH INSTRUCTIONS'):])
 
+
 		direction_api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin={}&destination={}&mode=driving&traffic_model=pessimistic&departure_time=now&key={}'.format(pi_address, di_address, google_directions_api_key).replace('#', '%23')
 		data = json.loads(requests.get(direction_api_url).text)
 		direction_length = int(data['routes'][0]['legs'][0]['distance']['text'].replace(',', '').split('mi')[0].strip())
@@ -424,48 +491,20 @@ def parse_pdf_file(request):
 		origin_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(pi_address, origin_place_id).replace(' ', '+')
 		destination_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(di_address, destination_place_id).replace(' ', '+')
 
-		return [[company_name, order_id, company_phone, vehicle_name, price,
+
+		vehicle = vehicles[0]
+		return [[company_name, order_id, company_phone, vehicle.name, price,
 				'=ГИПЕРССЫЛКА("{}";"{}")'.format(direction_link, direction_length),
 				'=ГИПЕРССЫЛКА("{}";"{}")'.format(origin_address_link, pi_address),
 				pi_phones[0], pickup_exactly,
 				'=ГИПЕРССЫЛКА("{}";"{}")'.format(destination_address_link, di_address),
 				di_phones[0], '', save_url],
 				['', '', '', '', '', '', '', pi_phones[1], '', '', delivery_estimated.replace('/', '.'),\
-				 di_phones[1], 'LOT #: {}'.format(vehicle_lot)]]
+				 di_phones[1], 'LOT #: {}'.format(vehicle.lot)]]
 
 
 	def write_to_googlesheet(data, sheet_id, start_row):
 		global service
-
-		to_write_values = [[
-			'Broker',
-			'Order ID',
-			'Broker phone',
-			'Vehicle',
-			'Cost $',
-			'Miles',
-			'From Address',
-			'Pickup Phone',
-			'Pick Up Date',
-			'To',
-			'Receiver phone',
-			'Deliver Date',
-			'Disp Sheet',
-			'BOL'
-		]]
-		values = service.spreadsheets().values().batchUpdate(
-			spreadsheetId=sheet_id,
-			body={
-				'valueInputOption': 'USER_ENTERED',
-				'data': [
-					{
-						'majorDimension': 'ROWS',
-						'range': 'A1:X2',
-						'values': to_write_values
-					}
-				]
-			}
-		).execute()
 
 		values = service.spreadsheets().values().batchUpdate(
 			spreadsheetId=sheet_id,
@@ -500,15 +539,17 @@ def parse_pdf_file(request):
 			# 	)
 			# )
 			# time.sleep(1)
-			try:
-				write_to_googlesheet(
-					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
-					client.google_sheet_id,
-					4 * client.number_of_parsed_files + 3
-				)
-				client.number_of_parsed_files += 1
-			except:
-				number_of_error_files += 1
+			get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]))
+			# try:
+			# 	write_to_googlesheet(
+			# 		get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
+			# 		client.google_sheet_id,
+			# 		4 * client.number_of_parsed_files + 3
+			# 	)
+			# 	client.number_of_parsed_files += 1
+			# except:
+			# 	print(f"File {filename} can't be parsed")
+			# 	number_of_error_files += 1
 		time.sleep(5)
 		client.save()
 		result = {
