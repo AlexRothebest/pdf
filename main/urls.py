@@ -5,9 +5,9 @@ from .views import home, login, add_user, registration, restore_password, load_p
 urlpatterns = [
     path('', home),
     path('login/', login),
-    path('add_user/', add_user),
+    path('add-user/', add_user),
     path('registration/', registration),
-    path('restore_password/', restore_password),
+    path('restore-password/', restore_password),
 
-    path('load_pdf/', load_pdf)
+    path('load-pdf/', load_pdf)
 ]

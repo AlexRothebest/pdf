@@ -5,8 +5,8 @@
 	border-radius: 10px;
 	padding: 20px;
 	position: absolute;
-	left: 50%;
-	transform: translateX(-70%);
+	left: 10%;
+	max-width: 35%;
 }
 
 #fieldset input, select {
@@ -46,9 +46,6 @@
 	color: #ff0000;
 	font-size: 15px;
 	display: none;
-	position: relative;
-	right: 50%;
-	transition: translateX(-50%);
 }
 #passwords_dont_match_error_msg {
 	right: 86px;
@@ -68,4 +65,16 @@ select, #status_text {
 select {
 	height: 25px;
 	width: 222px;
+}
+
+
+#instructions {
+	margin: 50px;
+	position: absolute;
+	left: 50%;
+	font-size: 1.2em;
+}
+
+#instructions ol li {
+	padding-bottom: 10px;
 }

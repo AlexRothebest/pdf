@@ -5,8 +5,10 @@ from django.template.context_processors import csrf
 from django.core.mail import send_mail
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
+from django.http import HttpResponse
 
 from main.models import Client
+from myadmin.models import ParsedData, Vehicle
 
 
 import httplib2, googleapiclient.discovery, requests
@@ -21,6 +23,7 @@ from pdfminer.pdfpage import PDFPage
 
 from xlutils.copy import copy as xlcopy
 
+import xlwt
 
 from threading import Thread
 
@@ -145,7 +148,6 @@ def add_user(request):
 
 	if request.is_ajax() and request.method == 'POST':
 		name = request.POST['name']
-		surname = request.POST['surname']
 		email = request.POST['email'].lower()
 		status = request.POST['status']
 		username = request.POST['username']
@@ -201,7 +203,6 @@ def add_user(request):
 
 			new_client = Client(
 				name = name,
-				surname = surname,
 				email = email,
 				status = status[0],
 				account = new_user,
@@ -303,10 +304,55 @@ def change_clients_data(request):
 				'message': 'Wrong method'
 			}
 			return return_json_response(result, 400)
+	else:
+		result = {
+			'status': 'Not accepted',
+			'message': 'Authentication required'
+		}
+		return return_json_response(result, 400)
+
+
+def delete_clients(request):
+	if request.user.is_authenticated:
+		if request.is_ajax() and request.method == 'POST':
+			client = Client.objects.get(account = request.user)
+			if client.status != 'a':
+				result = {
+					'status': 'Not accepted',
+					'message': 'Permission denied'
+				}
+				return return_json_response(result, 403)
+
+			clients_to_delete = request.POST['clientsToDelete'].split(', ')
+			deleted_clients_number, not_deleted_clients_number = 0, 0
+			for client_id in clients_to_delete:
+				try:
+					Client.objects.get(id=int(client_id)).account.delete()
+					deleted_clients_number += 1
+				except:
+					not_deleted_clients_number += 1
+
+			result = {
+				'status': 'accepted',
+				'message': f"{deleted_clients_number} clients deleted successfully, {not_deleted_clients_number} clients weren't deleted"
+			}
+			return return_json_response(result)
+		else:
+			result = {
+				'status': 'Not accepted',
+				'message': 'Wrong method'
+			}
+			return return_json_response(result, 400)
+	else:
+		result = {
+			'status': 'Not accepted',
+			'message': 'Authentication required'
+		}
+		return return_json_response(result, 400)
 
 
 def parse_pdf_file(request):
-	class Vehicle():
+	class PDFVehicle():
 		pass
 
 
@@ -358,7 +404,7 @@ def parse_pdf_file(request):
 		return text[pos1 : pos2].strip()
 
 
-	def get_data(filename, save_url):
+	def get_data(filename, save_url, client):
 		def extract_address(text):
 			try:
 				x = int(text[:6])
@@ -444,7 +490,7 @@ def parse_pdf_file(request):
 		vehicles = []
 		for vehicle_number in range(100):
 			print(vehicle_number)
-			vehicle = Vehicle()
+			vehicle = PDFVehicle()
 			vehicle.name = gft(text, str(vehicle_number), 'Type:', text.find('Vehicle Information'))
 			vehicle.type = gft(text, 'Type:', 'Color:', text.find('Vehicle Information'))
 			vehicle.color = gft(text, 'Color:', 'Plate:', text.find('Vehicle Information'))
@@ -491,6 +537,49 @@ def parse_pdf_file(request):
 		origin_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(pi_address, origin_place_id).replace(' ', '+')
 		destination_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(di_address, destination_place_id).replace(' ', '+')
 
+		parsed_data = ParsedData(
+			company_name=company_name,
+			order_id=order_id,
+			company_phone=company_phone,
+
+			price=price,
+
+			direction_length=direction_length,
+			direction_link=direction_link,
+
+			pi_address=pi_address,
+			di_address=di_address,
+			origin_address_link=origin_address_link,
+			destination_address_link=destination_address_link,
+
+			pi_phone0=pi_phones[0],
+			pi_phone1=pi_phones[1],
+			di_phone0=di_phones[0],
+			di_phone1=di_phones[1],
+
+			pickup_exactly=pickup_exactly,
+			delivery_estimated=delivery_estimated,
+
+			emails=', '.join(emails),
+
+			save_url=save_url,
+
+			client=client
+		)
+		parsed_data.save()
+
+		for vehicle in vehicles:
+			Vehicle(
+				name=vehicle.name,
+				vehicle_type=vehicle.type,
+				color=vehicle.color,
+				plate=vehicle.plate,
+				vin=vehicle.vin,
+				lot=vehicle.lot,
+				additional_info=vehicle.additional_info,
+
+				file=parsed_data
+			).save()
 
 		vehicle = vehicles[0]
 		return [[company_name, order_id, company_phone, vehicle.name, price,
@@ -539,7 +628,7 @@ def parse_pdf_file(request):
 			# 	)
 			# )
 			# time.sleep(1)
-			get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]))
+			get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
 			# try:
 			# 	write_to_googlesheet(
 			# 		get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
@@ -566,3 +655,67 @@ def parse_pdf_file(request):
 			'message': 'Authentication required'
 		}
 		return return_json_response(result, 401)
+
+
+def download_clients_parsed_data(request):
+	if request.user.is_authenticated:
+		if request.is_ajax() and request.method == 'POST':
+			client = Client.objects.get(account = request.user)
+			if client.status != 'a':
+				result = {
+					'status': 'Not accepted',
+					'message': 'Permission denied'
+				}
+				return return_json_response(result, 403)
+
+			clients_to_download = request.POST['clientsToDownload'].split(', ')
+			parsed_files_to_download = []
+			for client_id in clients_to_download:
+				try:
+					parsed_files_to_download += Client.objects.get(id=int(client_id)).parseddata_set()
+				except:
+					pass
+
+			response = HttpResponse(content_type='application/ms-excel')
+			response['Content-Disposition'] = 'attachment; filename="Data.xls"'
+
+			wb = xlwt.Workbook()
+			ws = wb.add_sheet('Sheet 1')
+
+			to_write_values = [
+				'Broker',
+				'Order ID',
+				'Broker phone',
+				'Vehicle',
+				'Cost $',
+				'Miles',
+				'From Address',
+				'Pickup Phone',
+				'Pick Up Date',
+				'To',
+				'Receiver phone',
+				'Deliver Date',
+				'Disp Sheet',
+				'BOL'
+			]
+			for col, value in enumerate(to_write_values):
+				ws.write(0, col, value)
+
+			for col in range(14):
+				ws.col(col).width = 256 * 15
+
+			wb.save(response)
+
+			return response
+		else:
+			result = {
+				'status': 'Not accepted',
+				'message': 'Wrong method'
+			}
+			return return_json_response(result, 400)
+	else:
+		result = {
+			'status': 'Not accepted',
+			'message': 'Authentication required'
+		}
+		return return_json_response(result, 400)

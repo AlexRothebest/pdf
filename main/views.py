@@ -18,7 +18,7 @@ def get_username_and_status(request):
 
 
 def home(request):
-	return redirect('login/')
+	return redirect('/login/')
 
 
 def login(request):
@@ -28,14 +28,14 @@ def login(request):
 
 		return render(request, 'main/login.html', args)
 	else:
-		return redirect('/load_pdf/')
+		return redirect('/load-pdf/')
 
 
 def add_user(request):
 	if request.user.is_authenticated:
 		args = get_username_and_status(request)
 
-		return render(request, 'main/add_user.html', args)
+		return render(request, 'main/add-user.html', args)
 	else:
 		return redirect('/')
 
@@ -53,13 +53,13 @@ def restore_password(request):
 	else:
 		args = {}
 
-	return render(request, 'main/restore_password.html', args)
+	return render(request, 'main/restore-password.html', args)
 
 
 def load_pdf(request):
 	if request.user.is_authenticated:
 		args = get_username_and_status(request)
 
-		return render(request, 'main/load_pdf_file.html', args)
+		return render(request, 'main/load-pdf-file.html', args)
 	else:
 		return redirect('/')

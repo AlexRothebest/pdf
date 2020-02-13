@@ -33,8 +33,7 @@ $(document).ready(function() {
 			username = $('#username_field').val(),
 			password = $('#password_field').val(),
 			repeatPassword = $('#repeat_password_field').val(),
-			googleSheetId = $('#google-sheet-id').val().split('/spreadsheets/d/')[1].split('/')[0],
-			allInputs = $('input'),
+				allInputs = $('input'),
 			dataValid = true,
 			isValid = true;
 
@@ -44,7 +43,7 @@ $(document).ready(function() {
 			var status = 'user';
 		}
 
-		for (let i = 0; i < allInputs.length - 1; i++) {
+		for (let i = 1; i < allInputs.length; i++) {
 			let id = $('input').get(i).id;
 			isValid = valid(id);
 			dataValid = dataValid && isValid;
@@ -59,6 +58,15 @@ $(document).ready(function() {
 				$('#password_field').css('border-color', 'red');
 				$('#repeat_password_field').css('border-color', 'red');
 			} else {
+				try {
+					var googleSheetId = $('#google-sheet-id').val().split('/spreadsheets/d/')[1].split('/')[0];
+				} catch {
+					$('input#google-sheet-id').css('border-color', 'red');
+					$('#error_msg_container').text('Wrong link');
+					$('#error_msg_container').show();
+					return;
+				}
+
 				$('#passwords_dont_match_error_msg').hide();
 				$('#wait_msg').show()
 				var data = {
@@ -74,7 +82,7 @@ $(document).ready(function() {
 				$.ajax({
 					type: 'POST',
 					async: true,
-					url: '/api/add_user/',
+					url: '/api/add-user/',
 					data: data,
 					headers: {
 						'X-CSRFToken': getCookie('csrftoken')

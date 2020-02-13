@@ -5,7 +5,6 @@ from django.contrib import auth
 
 class Client(models.Model):
     name = models.CharField(max_length = 30)
-    surname = models.CharField(max_length = 30)
     email = models.EmailField(max_length = 100)
 
     status = models.CharField(max_length = 30, choices = [('a', 'Admin'), ('u', 'User')])
@@ -15,4 +14,4 @@ class Client(models.Model):
     number_of_parsed_files = models.IntegerField(default = 0)
 
     def __str__(self):
-        return self.name + ' ' + self.surname
+        return self.name

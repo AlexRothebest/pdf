@@ -21,6 +21,8 @@
 		<div id='head'>
 			<a>Search: </a><input id='search-input' placeholder='Search...'>
 			<button id='save-btn'>Save changes</button>
+			<button id='delete-clients-btn'>Delete selected users</button>
+			<button id='load-clients-data-btn'>Download data</button>
 		</div>
 
 
@@ -35,10 +37,10 @@
 				<th>Number of<br>uploaded files</th>
 			</tr>
 			{% for client in all_clients %}
-				<tr class='client-info-block'>
-					<td class='id' onclick="window.open('/admin/client/{{ client.id }}', '_blank')	"><a></a></td>
-					<td class='name' onclick="window.open('/admin/client/{{ client.id }}', '_blank')">{{ client.name }} {{ client.surname }}</td>
-					<td class='username' onclick="window.open('/admin/client/{{ client.id }}', '_blank')">{{ client.account.username }}</td>
+				<tr class='client-info-block' client-id='{{ client.id }}'>
+					<td class='id'><a></a></td>
+					<td class='name'>{{ client.name }} {{ client.surname }}</td>
+					<td class='username'>{{ client.account.username }}</td>
 					<td class='email'><a href='mailto:{{ client.email }}' target='_blank'>{{ client.email }}</a></td>
 					<td>
 						<label for='status{{ client.id }}-user' class='radio'>

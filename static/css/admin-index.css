@@ -6,6 +6,7 @@ table {
 	border-collapse: separate;
 	border-spacing: 0;
 	margin: auto;
+	margin-bottom: 30px;
 	font-size: 1.2em;
 }
 table tr th,
@@ -19,7 +20,6 @@ table tr td:first-child {
 	border-left: 1px solid #bbb;
 }
 table tr td {
-	background-color: white;
 	transition-duration: 0.1s;
 }
 table tr th {
@@ -42,6 +42,9 @@ table tr:last-child td:last-child {
 table tr:nth-child(odd) td {
 	background-color: #eaeae1;
 }
+table tr:nth-child(even) td {
+	background-color: white;
+}
 table tr:hover td {
 	background-color: #ffff80;
 }
@@ -52,7 +55,7 @@ table tr td:nth-child(3) {
 }
 
 
-td.id a::before {
+td.id a::after {
 	counter-increment: user_id;
 	content: counter(user_id);
 }
@@ -88,22 +91,50 @@ td.googlesheet {
 }
 
 
-#save-btn {
+#head button {
 	display: none;
 	position: absolute;
-	left: 50%;
-	transform: translateX(-60%);
 	padding: 10px 20px;
 	background: transparent;
-	border: 1px solid blue;
 	border-radius: 5px;
-	color: blue;
 	transition: 0.3s;
 	cursor: pointer;
 	outline: none;
 }
-#save-btn:hover {
-	background: blue;
+#head button:hover {
 	border: 1px solid transparent;
 	color: white;
+}
+
+#save-btn {
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 10px 20px;
+	border: 1px solid blue;
+	color: blue;
+}
+#save-btn:hover {
+	background: blue;
+}
+
+#delete-clients-btn {
+	left: 69%;
+	transform: translateX(-50%);
+	padding: 10px 20px;
+	border: 1px solid red;
+	color: red;
+}
+#delete-clients-btn:hover {
+	background: red;
+}
+
+#load-clients-data-btn {
+	left: 88%;
+	transform: translateX(-50%);
+	padding: 10px 20px;
+	border: 1px solid green;
+	color: green;
+}
+#load-clients-data-btn:hover {
+	background: green;
 }

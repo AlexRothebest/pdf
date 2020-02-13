@@ -36,7 +36,7 @@ function registerUser() {
 		dataValid = true,
 		isValid = true;
 
-	for (let i = 1; i < allInputs.length - 1; i++) {
+	for (let i = 1; i < allInputs.length; i++) {
 		let id = $('input').get(i).id;
 		isValid = valid(id);
 		dataValid = dataValid && isValid;
@@ -76,7 +76,7 @@ function registerUser() {
 			$.ajax({
 				type: 'POST',
 				async: true,
-				url: '/api/add_user/',
+				url: '/api/add-user/',
 				data: data,
 				headers: {
 					'X-CSRFToken': getCookie('csrftoken')
