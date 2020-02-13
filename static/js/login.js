@@ -26,7 +26,7 @@ function authenticateUser() {
 	$.ajax({
 		type: 'POST',
 		async: true,
-		url: '/api/login/',
+		url: '/api/login',
 		data: data,
 		headers: {
 			'X-CSRFToken': getCookie('csrftoken')

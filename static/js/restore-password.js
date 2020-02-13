@@ -38,7 +38,7 @@ function sendMail(field) {
 	$.ajax({
 		type: 'POST',
 		async: true,
-		url: '/api/restore-password/',
+		url: '/api/restore-password',
 		data: data,
 		headers: {
 			'X-CSRFToken': getCookie('csrftoken')

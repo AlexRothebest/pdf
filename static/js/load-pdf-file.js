@@ -29,7 +29,7 @@ $(document).ready(function(){
 		$('#result-field').text('Parsing in process...');
 		$('#results-saved-msg').hide();
 		$.ajax({
-			url: '/api/parse-pdf/',
+			url: '/api/parse-pdf',
 			type: 'POST',
 			async: true,
 			data: fd,

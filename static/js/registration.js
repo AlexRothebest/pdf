@@ -76,7 +76,7 @@ function registerUser() {
 			$.ajax({
 				type: 'POST',
 				async: true,
-				url: '/api/add-user/',
+				url: '/api/add-user',
 				data: data,
 				headers: {
 					'X-CSRFToken': getCookie('csrftoken')
