@@ -25,6 +25,8 @@ function hideAllMsg() {
 function sendMail(field) {
 	eval("var data = {" + field + ": $('#' + field + '_field').val()};");
 
+	alert(data.username);
+
 	hideAllMsg();
 
 	if (field == 'username') {

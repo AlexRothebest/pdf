@@ -1,0 +1,56 @@
+input, button, p {
+	margin: 5px;
+}
+
+p {
+	color: red;
+}
+
+#login_error, #processing_login, #error_msg_container {
+	display: none;
+	position: relative;
+	left: 1.1%;
+}
+
+#forgot_password_msg {
+	color: blue;
+	text-decoration: none;
+	display: block;
+	margin-top: -15px;
+	position: relative;
+	left: 150px;
+}
+
+section {
+	position: relative;
+	left: 35%;
+	transition: translateX(-50%);
+}
+
+input {
+	margin: 20px;
+	padding: 10px;
+	width: 200px;
+	background-color: linen;
+	border: 1px solid blue;
+	border-radius: 10px;
+	outline: none;
+}
+
+#login-btn {
+	position: relative;
+	left: 1.1%;
+	margin-top: 20px;
+	padding: 10px 20px;
+	background: transparent;
+	border: 1px solid blue;
+	border-radius: 5px;
+	color: blue;
+	transition: 0.3s;
+	cursor: pointer;
+}
+#login-btn:hover {
+	background: blue;
+	border: 1px solid transparent;
+	color: white;
+}

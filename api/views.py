@@ -192,8 +192,8 @@ def add_user(request):
 							Enjoy!'.format(name, username, password)
 			send_mail('Account verification', 'Lol', 'Kek', [email], html_message = html_message)
 
-			new_user = User.objects.create_user(username = username,
-												password = password)
+			new_user = User.objects.create_user(username=username,
+												password=password)
 			if status == 'admin':
 				new_user.is_staff = True
 			new_user.save()
@@ -229,9 +229,10 @@ def restore_password(request):
 
 	if request.is_ajax() and request.method == 'POST':
 		try:
+			username = request.POST['username']
+
 			print(f'Restoring password by username {username}')
 
-			username = request.POST['username']
 			if len(User.objects.filter(username = username)) == 0:
 				result = {
 					'status': 'Not accepted',
@@ -245,9 +246,10 @@ def restore_password(request):
 				email = client.email
 				success = True
 		except:
+			email = request.POST['email'].lower()
+
 			print(f'Restoring password by email {email}')
 
-			email = request.POST['email'].lower()
 			if len(Client.objects.filter(email = email)) == 0:
 				result = {
 					'status': 'Not accepted',
@@ -292,6 +294,10 @@ def change_clients_data(request):
 				client_to_change = Client.objects.get(id=int(client_id))
 				client_to_change.status = new_status[0]
 				client_to_change.save()
+
+				user = client_to_change.account
+				user.is_staff = new_status=='admin'
+				user.save()
 
 			result = {
 				'status': 'accepted',
@@ -628,18 +634,18 @@ def parse_pdf_file(request):
 			# 	)
 			# )
 			# time.sleep(1)
-			get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
-			# try:
-			# 	write_to_googlesheet(
-			# 		get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
-			# 		client.google_sheet_id,
-			# 		4 * client.number_of_parsed_files + 3
-			# 	)
-			# 	client.number_of_parsed_files += 1
-			# except:
-			# 	print(f"File {filename} can't be parsed")
-			# 	number_of_error_files += 1
-		time.sleep(5)
+			# get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
+			try:
+				write_to_googlesheet(
+					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client),
+					client.google_sheet_id,
+					4 * client.number_of_parsed_files + 3
+				)
+				client.number_of_parsed_files += 1
+			except Exception as error:
+				print(f"\n\nFile {filename} can't be parsed\nError: {repr(error)}\n\n")
+				number_of_error_files += 1
+		# time.sleep(5)
 		client.save()
 		result = {
 			'status': 'accepted',
@@ -671,10 +677,13 @@ def download_clients_parsed_data(request):
 			clients_to_download = request.POST['clientsToDownload'].split(', ')
 			parsed_files_to_download = []
 			for client_id in clients_to_download:
-				try:
-					parsed_files_to_download += Client.objects.get(id=int(client_id)).parseddata_set()
-				except:
-					pass
+				parsed_files_to_download += Client.objects.get(id=int(client_id)).parseddata_set.all()
+				# try:
+				# 	parsed_files_to_download += Client.objects.get(id=int(client_id)).parseddata_set()
+				# except:
+				# 	pass
+
+			print(f'Data from {len(parsed_files_to_download)} files will be downloaded now')
 
 			response = HttpResponse(content_type='application/ms-excel')
 			response['Content-Disposition'] = 'attachment; filename="Data.xls"'
@@ -696,10 +705,61 @@ def download_clients_parsed_data(request):
 				'Receiver phone',
 				'Deliver Date',
 				'Disp Sheet',
-				'BOL'
+				'BOL',
+				'Emails'
 			]
 			for col, value in enumerate(to_write_values):
 				ws.write(0, col, value)
+
+			for parsed_file_number, parsed_file in enumerate(parsed_files_to_download):
+				row = 4 * parsed_file_number + 2
+
+				ws.write(row, 0, parsed_file.company_name)
+				ws.write(row, 1, parsed_file.order_id)
+				ws.write(row, 2, parsed_file.company_phone)
+				ws.write(row, 3, parsed_file.vehicle_set.all()[0].name)
+				ws.write(row, 4, parsed_file.price)
+
+				if len(parsed_file.direction_link) <= 255:
+					ws.write(row, 5, xlwt.Formula(f'HYPERLINK("{parsed_file.direction_link}"; "{parsed_file.direction_length}")'))
+				else:
+					ws.write(row, 5, parsed_file.direction_link)
+					ws.write(row + 1, 5, parsed_file.direction_length)
+
+				if len(parsed_file.origin_address_link) <= 255:
+					ws.write(row, 6, xlwt.Formula(f'HYPERLINK("{parsed_file.origin_address_link}"; "{parsed_file.pi_address}")'))
+				else:
+					ws.write(row, 6, parsed_file.origin_address_link)
+					ws.write(row + 1, 6, parsed_file.pi_address)
+
+				ws.write(row, 7, parsed_file.pi_phone0)
+				ws.write(row, 8, parsed_file.pickup_exactly)
+
+				if len(parsed_file.destination_address_link) <= 255:
+					ws.write(row, 9, xlwt.Formula(f'HYPERLINK("{parsed_file.destination_address_link}"; "{parsed_file.di_address}")'))
+				else:
+					ws.write(row, 9, parsed_file.destination_address_link)
+					ws.write(row + 1, 9, parsed_file.di_address)
+
+				ws.write(row, 10, parsed_file.di_phone0)
+				ws.write(row, 12, xlwt.Formula(f'HYPERLINK("{parsed_file.save_url}"; "{parsed_file.save_url}")'))
+				ws.write(row, 13, parsed_file.emails)
+
+				ws.write(row + 1, 7, parsed_file.pi_phone1)
+				ws.write(row + 1, 10, parsed_file.delivery_estimated.replace('/', '.'))
+				ws.write(row + 1, 11, parsed_file.di_phone1)
+				ws.write(row + 1, 12, f'LOT #: {format(parsed_file.vehicle_set.all()[0].lot)}')
+
+
+# 				return [[company_name, order_id, company_phone, vehicle.name, price,
+# 						'=ГИПЕРССЫЛКА("{}";"{}")'.format(direction_link, direction_length),
+# 						'=ГИПЕРССЫЛКА("{}";"{}")'.format(origin_address_link, pi_address),
+# 						pi_phones[0], pickup_exactly,
+# 						'=ГИПЕРССЫЛКА("{}";"{}")'.format(destination_address_link, di_address),
+# 						di_phones[0], '', save_url],
+# 						['', '', '', '', '', '', '', pi_phones[1], '', '', delivery_estimated.replace('/', '.'),\
+# 						 di_phones[1], 'LOT #: {}'.format(vehicle.lot)]]
+
 
 			for col in range(14):
 				ws.col(col).width = 256 * 15
