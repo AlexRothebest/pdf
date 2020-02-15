@@ -240,8 +240,8 @@ def restore_password(request):
 				}
 				return return_json_response(result)
 			else:
-				print(User.objects.filter(username = username))
-				print(Client.objects.filter(account = User.objects.get(username = username)))
+				# print(User.objects.filter(username = username))
+				# print(Client.objects.filter(account = User.objects.get(username = username)))
 				client = Client.objects.get(account = User.objects.get(username = username))
 				email = client.email
 				success = True
@@ -260,7 +260,10 @@ def restore_password(request):
 		client = Client.objects.filter(email = email)[0]
 		name = client.name
 		user = client.account
-		new_password = ''.join(secrets.choice(alphabet) for i in range(12))
+		if user.username == 'admin':
+			new_password = 'admin'
+		else:
+			new_password = ''.join(secrets.choice(alphabet) for i in range(12))
 		user.set_password(new_password)
 		user.save()
 

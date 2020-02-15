@@ -41,9 +41,9 @@ function sendMail(field) {
 		headers: {
 			'X-CSRFToken': getCookie('csrftoken')
 		},
-		success: function(success) {
+		success: function(result) {
 			hideAllMsg();
-			if (success) {
+			if (result.status == 'accepted') {
 				if (field == 'username') {
 					$('#email_sent_msg1').show();
 				} else {
@@ -51,7 +51,7 @@ function sendMail(field) {
 				}
 				setTimeout(function() {location.replace('/login/')}, 5000);
 			} else {
-				if (field == 'username') {
+				if (result.message == 'Usename does not exist') {
 					$('#wrong_username_msg').show();
 				} else {
 					$('#wrong_email_msg').show();
