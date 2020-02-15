@@ -6,6 +6,9 @@ env
 media/*
 
 
+*.sqlite3
+
+
 api/creds.json
 api/google_api_keys.json
 

@@ -161,20 +161,19 @@ def add_user(request):
 		else:
 			status = 'user'
 
-		# if len(User.objects.filter(username = username)) != 0:
-		# 	result = {
-		# 		'status': 'Not accepted',
-		# 		'message': 'This username is already taken'
-		# 	}
-		# 	return return_json_response(result)
+		if len(User.objects.filter(username = username)) != 0:
+			result = {
+				'status': 'Not accepted',
+				'message': 'This username is already taken'
+			}
+			return return_json_response(result)
 		# elif len(Client.objects.filter(email = email)) != 0:
 		# 	result = {
 		# 		'status': 'Not accepted',
 		# 		'message': 'This email is already taken'
 		# 	}
 		# 	return return_json_response(result)
-		# else:
-		if True:
+		else:
 			try:
 				init_googlesheet(google_sheet_id)
 			except:
