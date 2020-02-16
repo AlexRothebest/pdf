@@ -408,9 +408,11 @@ def parse_pdf_file(request):
 		if pos2 == -1:
 			pos2 = text.lower().find(substr2.lower())
 			if pos2 == -1:
-				raise Exception('The second substring is not in the text')
+				# print(f'\n\n\nText: {text[pos1:]}\n\n\nSubstr 1: {substr1}\n\n\nSubstr 2: {substr2}\n\n\n')
+				raise Exception(f'The second substring is not in the text')
 			elif pos2 < pos1:
-				raise Exception('The second substirng occurs in the text earlier than the first one (pos1 = {}, pos2 = {})'.format(pos1, pos2))
+				print(f'\n\n\nText: {text[pos1:]}\n\n\nSubstr 1: {substr1}\n\n\nSubstr 2: {substr2}\n\n\n')
+				raise Exception('The second substring occurs in the text earlier than the first one (pos1 = {}, pos2 = {})'.format(pos1, pos2))
 
 		return text[pos1 : pos2].strip()
 
@@ -439,6 +441,7 @@ def parse_pdf_file(request):
 
 
 		text = get_pdf_data(filename)
+		print(text)
 
 		order_id = gft(text, 'Order ID:', 'Total Vehicles:')
 		try:
@@ -499,28 +502,36 @@ def parse_pdf_file(request):
 				company_mc = ''
 			fax = ''
 		vehicles = []
-		for vehicle_number in range(100):
+		start_position = text.find('Vehicle Information')
+		for vehicle_number in range(1, 100):
 			print(vehicle_number)
 			vehicle = PDFVehicle()
-			vehicle.name = gft(text, str(vehicle_number), 'Type:', text.find('Vehicle Information'))
-			vehicle.type = gft(text, 'Type:', 'Color:', text.find('Vehicle Information'))
-			vehicle.color = gft(text, 'Color:', 'Plate:', text.find('Vehicle Information'))
-			vehicle.plate = gft(text, 'Plate:', 'VIN:', text.find('Vehicle Information'))
-			vehicle.vin = gft(text, 'VIN:', 'Lot #:', text.find('Vehicle Information'))
+			vehicle.name = gft(text, str(vehicle_number), 'Type:', start_position)
+			vehicle.type = gft(text, 'Type:', 'Color:', start_position)
+			vehicle.color = gft(text, 'Color:', 'Plate:', start_position)
+			vehicle.plate = gft(text, 'Plate:', 'VIN:', start_position)
+			vehicle.vin = gft(text, 'VIN:', 'Lot #:', start_position)
 			try:
 				try:
-					vehicle.lot = gft(text, 'Lot #:', 'Additional Info:', text.find('Vehicle Information'))
-					vehicle.additional_info = gft(text, 'Additional Info:', 'Pickup Information', text.find('Vehicle Information'))
+					vehicle.lot = gft(text, 'Lot #:', 'Additional Info:', start_position)
+					vehicle.additional_info = gft(text, 'Additional Info:', 'Pickup Information', start_position)
 				except:
-					vehicle.lot = gft(text, 'Lot #:', 'AdditionalInfo:', text.find('Vehicle Information'))
-					vehicle.additional_info = gft(text, 'AdditionalInfo:', 'Pickup Information', text.find('Vehicle Information'))
-				if 'AdditionalInfo:' in vehicle.additional_info:
+					vehicle.lot = gft(text, 'Lot #:', 'AdditionalInfo:', start_position)
+					vehicle.additional_info = gft(text, 'AdditionalInfo:', 'Pickup Information', start_position)
+				if 'Additional Info:' in vehicle.additional_info or 'AdditionalInfo:' in vehicle.additional_info:
 					a = 1 / 0
 				vehicles.append(vehicle)
 				break
 			except:
+				try:
+					vehicle.additional_info = gft(text, 'Additional Info:', str(vehicle_number + 1), start_position)
+					start_position = text.find(str(vehicle_number + 1), text.find('Additional Info:', start_position))
+				except:
+					vehicle.additional_info = gft(text, 'AdditionalInfo:', str(vehicle_number + 1), start_position)
+					start_position = text.find(str(vehicle_number + 1), text.find('AdditionalInfo:', start_position))
+
 				vehicles.append(vehicle)
-				break
+
 
 		# pi - Pickup information
 		pi_address = extract_address(gft(text, 'Name:', 'Phone:', text.find('Pickup Information')).split(':')[-1])
@@ -639,7 +650,8 @@ def parse_pdf_file(request):
 			# 	)
 			# )
 			# time.sleep(1)
-			# get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
+			get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
+			break
 			try:
 				write_to_googlesheet(
 					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client),
