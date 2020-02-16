@@ -7,6 +7,7 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from django.http import HttpResponse
 
+
 from main.models import Client
 from myadmin.models import ParsedData, Vehicle
 
@@ -42,7 +43,7 @@ try:
 		]
 	)
 except:
-	print('Looks like you are using not Windows')
+	print('Looks like you are using not Windows\n')
 
 	creds_file_path = os.path.join(settings.BASE_DIR, 'api/creds.json')
 
@@ -195,6 +196,7 @@ def add_user(request):
 												password=password)
 			if status == 'admin':
 				new_user.is_staff = True
+				new_user.is_admin = True
 			new_user.save()
 
 			if not request.user.is_authenticated:
@@ -299,6 +301,7 @@ def change_clients_data(request):
 
 				user = client_to_change.account
 				user.is_staff = new_status=='admin'
+				user.is_admin = new_status=='admin'
 				user.save()
 
 			result = {
