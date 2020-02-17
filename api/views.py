@@ -650,8 +650,8 @@ def parse_pdf_file(request):
 			# 	)
 			# )
 			# time.sleep(1)
-			get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
-			break
+			# get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
+			# break
 			try:
 				write_to_googlesheet(
 					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client),
