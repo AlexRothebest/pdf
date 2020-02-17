@@ -660,7 +660,7 @@ def parse_pdf_file(request):
 					4 * client.number_of_parsed_files + 3
 				)
 				client.number_of_parsed_files += 1
-				client.next_row_to_write_data += max(client.next_row_to_write_data + 4, )
+				# client.next_row_to_write_data += max(client.next_row_to_write_data + 4, )
 			except Exception as error:
 				print(f"\n\nFile {filename} can't be parsed\nError: {repr(error)}\n\n")
 				number_of_error_files += 1
