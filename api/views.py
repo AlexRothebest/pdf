@@ -653,12 +653,14 @@ def parse_pdf_file(request):
 			# get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
 			# break
 			try:
+				data = get_data(filename, 'http://92.53.124.39:8080/media/' + '/'.join(filename.split('/')[-2:]), client)
 				write_to_googlesheet(
-					get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client),
+					data,
 					client.google_sheet_id,
 					4 * client.number_of_parsed_files + 3
 				)
 				client.number_of_parsed_files += 1
+				client.next_row_to_write_data += max(client.next_row_to_write_data + 4, )
 			except Exception as error:
 				print(f"\n\nFile {filename} can't be parsed\nError: {repr(error)}\n\n")
 				number_of_error_files += 1

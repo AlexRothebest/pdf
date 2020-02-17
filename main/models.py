@@ -13,5 +13,7 @@ class Client(models.Model):
     google_sheet_id = models.CharField(max_length = 100, null = True)
     number_of_parsed_files = models.IntegerField(default = 0)
 
+    next_row_to_write_data = models.IntegerField(default = 2)
+
     def __str__(self):
         return self.name
