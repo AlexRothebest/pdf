@@ -609,8 +609,8 @@ def parse_pdf_file(request):
 				'=ГИПЕРССЫЛКА("{}";"{}")'.format(origin_address_link, pi_address),
 				pi_phones[0], pickup_exactly,
 				'=ГИПЕРССЫЛКА("{}";"{}")'.format(destination_address_link, di_address),
-				di_phones[0], '', save_url],
-				['', '', '', '', '', '', '', pi_phones[1], '', '', delivery_estimated.replace('/', '.'),\
+				di_phones[0], delivery_estimated.replace('/', '.'), save_url],
+				['', '', '', '', '', '', '', pi_phones[1], '', '', '',\
 				 di_phones[1], 'LOT #: {}'.format(vehicle.lot)]]
 
 
