@@ -184,19 +184,19 @@ def add_user(request):
 				}
 				return return_json_response(result)
 
-			html_message = 'Congratulations, {}!<br><br>\
-							Somebody (probably you) registered you in our\
-							<a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
-							Your username: {}<br>\
-							Your password: {}<br><br>\
-							Enjoy!'.format(name, username, password)
+			html_message = f'Congratulations, {name}!<br><br>\
+							 Somebody (probably you) registered you in our\
+							 <a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
+							 Your username: {username}<br>\
+							 Your password: {password}<br><br>\
+							 Enjoy!'
 			send_mail('Account verification', 'Lol', 'Kek', [email], html_message = html_message)
 
 			new_user = User.objects.create_user(username=username,
 												password=password)
 			if status == 'admin':
 				new_user.is_staff = True
-				new_user.is_admin = True
+				new_user.is_superuser = True
 			new_user.save()
 
 			if not request.user.is_authenticated:
@@ -301,7 +301,7 @@ def change_clients_data(request):
 
 				user = client_to_change.account
 				user.is_staff = new_status=='admin'
-				user.is_admin = new_status=='admin'
+				user.is_superuser = new_status=='admin'
 				user.save()
 
 			result = {
@@ -412,7 +412,7 @@ def parse_pdf_file(request):
 				raise Exception(f'The second substring is not in the text')
 			elif pos2 < pos1:
 				print(f'\n\n\nText: {text[pos1:]}\n\n\nSubstr 1: {substr1}\n\n\nSubstr 2: {substr2}\n\n\n')
-				raise Exception('The second substring occurs in the text earlier than the first one (pos1 = {}, pos2 = {})'.format(pos1, pos2))
+				raise Exception(f'The second substring occurs in the text earlier than the first one (pos1 = {pos1}, pos2 = {pos2})')
 
 		return text[pos1 : pos2].strip()
 
@@ -468,7 +468,7 @@ def parse_pdf_file(request):
 			pass
 		dispatch_date = gft(text, 'Dispatch Date:', 'Pickup')
 		pickup_exactly = gft(text, ':', 'Delivery', text.find('Pickup')).split('/')
-		pickup_exactly = '{}.{}.{}'.format(pickup_exactly[1], pickup_exactly[0], pickup_exactly[2])
+		pickup_exactly = f'{pickup_exactly[1]}.{pickup_exactly[0]}.{pickup_exactly[2]}'
 		delivery_estimated = gft(text, ':', 'Ship Via:', text.find('Delivery'))
 		ship_via = gft(text, 'Ship Via:', 'Condition:')
 		condition = gft(text, 'Condition:', 'Price')
@@ -536,28 +536,49 @@ def parse_pdf_file(request):
 		# pi - Pickup information
 		pi_address = extract_address(gft(text, 'Name:', 'Phone:', text.find('Pickup Information')).split(':')[-1])
 		try:
-			pi_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Pickup Information')),
-						 gft(text, 'Phone 2:', 'Delivery Information', text.find('Pickup Information'))]
+			try:
+				try:
+					pi_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Pickup Information')),
+								 gft(text, 'Phone 2:', 'Phone 3:', text.find('Pickup Information')),
+								 gft(text, 'Phone 3:', 'Cell:', text.find('Pickup Information'))]
+				except:
+					pi_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Pickup Information')),
+								 gft(text, 'Phone 2:', 'Phone 3:', text.find('Pickup Information')),
+								 gft(text, 'Phone 3:', 'Delivery Information', text.find('Pickup Information'))]
+			except:
+				pi_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Delivery Information')),
+							 gft(text, 'Phone 2:', 'Delivery Information', text.find('Pickup Information'))]
 		except:
 			pi_phones = [gft(text, 'Phone:', 'Delivery Information', text.find('Pickup Information')), '']
+
 		# di - Delivery information
 		di_address = extract_address(gft(text, 'Name:', 'Phone:', text.find('Delivery Information')).split(':')[-1])
 		try:
-			di_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Delivery Information')),
-						 gft(text, 'Phone 2:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information'))]
+			try:
+				try:
+					di_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Delivery Information')),
+								 gft(text, 'Phone 2:', 'Phone 3:', text.find('Delivery Information')),
+								 gft(text, 'Phone 3:', 'Cell:', text.find('Delivery Information'))]
+				except:
+					di_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Delivery Information')),
+								 gft(text, 'Phone 2:', 'Phone 3:', text.find('Delivery Information')),
+								 gft(text, 'Phone 3:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information'))]
+			except:
+				di_phones = [gft(text, 'Phone:', 'Phone 2:', text.find('Delivery Information')),
+							 gft(text, 'Phone 2:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information'))]
 		except:
 			di_phones = [gft(text, 'Phone:', 'DISPATCH INSTRUCTIONS', text.find('Delivery Information')), '']
 		emails = re.findall(r'[\w\.-]+@[\w\.-]+', text[text.find('DISPATCH INSTRUCTIONS'):])
 
 
-		direction_api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin={}&destination={}&mode=driving&traffic_model=pessimistic&departure_time=now&key={}'.format(pi_address, di_address, google_directions_api_key).replace('#', '%23')
+		direction_api_url = f'https://maps.googleapis.com/maps/api/directions/json?origin={pi_address}&destination={di_address}&mode=driving&traffic_model=pessimistic&departure_time=now&key={google_directions_api_key}'.replace('#', '%23')
 		data = json.loads(requests.get(direction_api_url).text)
 		direction_length = int(data['routes'][0]['legs'][0]['distance']['text'].replace(',', '').split('mi')[0].strip())
 		origin_place_id = data['geocoded_waypoints'][0]['place_id']
 		destination_place_id = data['geocoded_waypoints'][1]['place_id']
-		direction_link = 'https://www.google.com/maps/dir/?api=1&origin={}&origin_place_id={}&destination={}&destination_place_id={}&travelmode=driving'.format(pi_address, origin_place_id, di_address, destination_place_id).replace(' ', '+')
-		origin_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(pi_address, origin_place_id).replace(' ', '+')
-		destination_address_link = 'https://www.google.com/maps/search/?api=1&query={}&query_place_id={}'.format(di_address, destination_place_id).replace(' ', '+')
+		direction_link = f'https://www.google.com/maps/dir/?api=1&origin={pi_address}&origin_place_id={origin_place_id}&destination={di_address}&destination_place_id={destination_place_id}&travelmode=driving'.replace(' ', '+')
+		origin_address_link = f'https://www.google.com/maps/search/?api=1&query={pi_address}&query_place_id={origin_place_id}'.replace(' ', '+')
+		destination_address_link = f'https://www.google.com/maps/search/?api=1&query={di_address}&query_place_id={destination_place_id}'.replace(' ', '+')
 
 		parsed_data = ParsedData(
 			company_name=company_name,
@@ -604,14 +625,36 @@ def parse_pdf_file(request):
 			).save()
 
 		vehicle = vehicles[0]
-		return [[company_name, order_id, company_phone, vehicle.name, price,
-				'=ГИПЕРССЫЛКА("{}";"{}")'.format(direction_link, direction_length),
-				'=ГИПЕРССЫЛКА("{}";"{}")'.format(origin_address_link, pi_address),
-				pi_phones[0], pickup_exactly,
-				'=ГИПЕРССЫЛКА("{}";"{}")'.format(destination_address_link, di_address),
-				di_phones[0], delivery_estimated.replace('/', '.'), save_url.replace(' ', '%20')],
-				['', '', '', '', '', '', '', pi_phones[1], '', '',\
-				 di_phones[1], '', 'LOT #: {}'.format(vehicle.lot)]]
+		data_to_return = [[company_name, order_id, company_phone, '', price,
+						   '=ГИПЕРССЫЛКА("{direction_link}";"{direction_length}")',
+						   '=ГИПЕРССЫЛКА("{origin_address_link}";"{pi_address}")',
+						   '', pickup_exactly,
+						   '=ГИПЕРССЫЛКА("{destination_address_link}";"{di_address}")',
+						   '', delivery_estimated.replace('/', '.'), save_url.replace(' ', '%20')],
+						   ['', '', '', '', '', '', '', '', '', '',\
+						    '', '', '   '.join('LOT #: {vehicle.lot}' for vehicle in vehicles)]]
+		for vehicle_number in range(len(vehicles)):
+			try:
+				data_to_return[vehicle_number][3] = vehicles[vehicle_number].name
+			except:
+				data_to_return.append(['', '', '', vehicles[vehicle_number].name,
+									   '', '', '', '', '', '', '', '', ''])
+
+		for di_phone_number in range(len(di_phones)):
+			try:
+				data_to_return[di_phone_number][10] = di_phones[di_phone_number]
+			except:
+				data_to_return.append(['', '', '',  '', '', '', '', '', '', '',
+									   di_phones[di_phone_number], '', ''])
+
+		for pi_phone_number in range(len(pi_phones)):
+			try:
+				data_to_return[pi_phone_number][7] = pi_phones[pi_phone_number]
+			except:
+				data_to_return.append(['', '', '', '', '', '', '', pi_phones[pi_phone_number],
+									   '', '', '', '', ''])
+
+		return data_to_return
 
 
 	def write_to_googlesheet(data, sheet_id, start_row):
@@ -624,7 +667,7 @@ def parse_pdf_file(request):
 				'data': [
 					{
 						'majorDimension': 'ROWS',
-						'range': 'A{}:X{}'.format(start_row, start_row + 2),
+						'range': f'A{start_row}:X{start_row + len(data)}',
 						'values': data
 					}
 				]
@@ -633,46 +676,50 @@ def parse_pdf_file(request):
 
 
 	if request.user.is_authenticated:
+		media_base_url = f"http://{request.build_absolute_uri().split('://')[1].split('/')[0]}/media"
+
 		client = Client.objects.get(account = request.user)
-		number_of_error_files = 0
 		filenames_to_parse = []
 		for file in request.FILES.getlist('pdf-file')[:100]:
-			filename = '{}/{}-{}'.format(client.account.username, time.time(), file.name)
-			filenames_to_parse.append('{}/{}'.format(media_base_dir, filename))
-			FileSystemStorage().save(filename, file)
-		for filename in filenames_to_parse:
-			# create_thread(write_to_googlesheet,
-			# 	(
-			# 		#get_data(filename, 'https://localhost:8000/media/' + '/'.join(filename.split('/')[-2:])),
-			# 		get_data(filename, 'https://pdf-parsing.herokuapp.com/media/' + '/'.join(filename.split('/')[-2:])),
-			# 		client.google_sheet_id,
-			# 		4 * client.number_of_parsed_files + 3
-			# 	)
-			# )
-			# time.sleep(1)
-			# get_data(filename, 'http://localhost:8000/media/' + '/'.join(filename.split('/')[-2:]), client)
-			# break
+			file_name = file.name
+			file_path = f'{media_base_dir}/{client.account.username}/{time.time()}-{file_name}'
+			file_url = f'{media_base_url}/{client.account.username}/{time.time()}-{file_name}'
+
+			filenames_to_parse.append([file_name, file_path, file_url])
+
+			FileSystemStorage().save(file_path, file)
+
+		error_filenames = {}
+		parsed_filenames = {}
+		for file_name, file_path, file_url in filenames_to_parse:
 			try:
-				data = get_data(filename, 'http://92.53.124.39:8080/media/' + '/'.join(filename.split('/')[-2:]), client)
+				data = get_data(file_path, file_url, client)
 				write_to_googlesheet(
 					data,
 					client.google_sheet_id,
-					4 * client.number_of_parsed_files + 3
+					client.next_row_to_write_data
 				)
+
 				client.number_of_parsed_files += 1
-				# client.next_row_to_write_data += max(client.next_row_to_write_data + 4, )
+				client.next_row_to_write_data += len(data) + 2
+
+				parsed_filenames[file_name] = file_url
 			except Exception as error:
-				print(f"\n\nFile {filename} can't be parsed\nError: {repr(error)}\n\n")
-				number_of_error_files += 1
-		# time.sleep(5)
+				print(f"\n\nFile {file_path} can't be parsed\nError: {repr(error)}\n\n")
+
+				error_filenames[file_name] = file_url
+
 		client.save()
+
 		result = {
 			'status': 'accepted',
-			'message': '{} file(s) were parsed successfully'.format(len(filenames_to_parse) - number_of_error_files),
-			'google_sheet_id': client.google_sheet_id
+			'message': f'{len(filenames_to_parse) - len(error_filenames)} file(s) were scaned successfully',
+			'google_sheet_id': client.google_sheet_id,
+			'parsed_filenames': parsed_filenames,
+			'error_filenames': error_filenames
 		}
-		if number_of_error_files > 0:
-			result['message'] += f', {number_of_error_files} file(s) were not parsed'
+		if len(error_filenames) > 0:
+			result['message'] += f", {len(error_filenames)} file(s) can't be scaned"
 		return return_json_response(result)
 	else:
 		result = {
@@ -767,17 +814,7 @@ def download_clients_parsed_data(request):
 				ws.write(row + 1, 7, parsed_file.pi_phone1)
 				ws.write(row + 1, 10, parsed_file.delivery_estimated.replace('/', '.'))
 				ws.write(row + 1, 11, parsed_file.di_phone1)
-				ws.write(row + 1, 12, f'LOT #: {format(parsed_file.vehicle_set.all()[0].lot)}')
-
-
-# 				return [[company_name, order_id, company_phone, vehicle.name, price,
-# 						'=ГИПЕРССЫЛКА("{}";"{}")'.format(direction_link, direction_length),
-# 						'=ГИПЕРССЫЛКА("{}";"{}")'.format(origin_address_link, pi_address),
-# 						pi_phones[0], pickup_exactly,
-# 						'=ГИПЕРССЫЛКА("{}";"{}")'.format(destination_address_link, di_address),
-# 						di_phones[0], '', save_url],
-# 						['', '', '', '', '', '', '', pi_phones[1], '', '', delivery_estimated.replace('/', '.'),\
-# 						 di_phones[1], 'LOT #: {}'.format(vehicle.lot)]]
+				ws.write(row + 1, 12, f'LOT #: {parsed_file.vehicle_set.all()[0].lot}')
 
 
 			for col in range(14):

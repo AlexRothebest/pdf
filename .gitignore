@@ -6,6 +6,9 @@ env
 media/*
 
 
+pdf files/*
+
+
 *.sqlite3
 
 

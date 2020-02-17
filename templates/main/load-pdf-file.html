@@ -23,14 +23,22 @@
 			<label for='pdf-file-input' id='pdf-input-label'>Upload PDF-files</label>
 			<p id='uploaded-files-hint'>0 file(s) uploaded</p>
 			<br>
-			<button id='load-file-btn'>Parse files</button>
+			<button id='load-file-btn'>Scan files</button>
 			<br>
 			<a class='result-text' href='https://docs.google.com/spreadsheets/d/{{ client.google_sheet_id }}/edit#gid=0' target='_blank'>Link to your googlesheet</a>
 			<br>
+			<br>
 			<p id='result-field' class='result-text'></p>
-			<!--
-			<p id='results-saved-msg'>Results were written to <a id='google-sheet-link' target='_blank'>the googlesheet</a></p>
-			-->
+			<br>
+			<div id='parsed-files-block'>
+				<a>Successfully scaned file(s):</a>
+				<ul id='parsed-files'></ul>
+			</div>
+			<br>
+			<div id='error-files-block'>
+				<a>Not scaned file(s):</a>
+				<ul id='error-files'></ul>
+			</div>
 		</div>
 
 

@@ -28,6 +28,11 @@ $(document).ready(function(){
 
 		$('#result-field').text('Parsing in process...');
 		$('#results-saved-msg').hide();
+
+		$('#parsed-files, #error-files').empty();
+
+		$('#parsed-files-block, #error-files-block').hide();
+
 		$.ajax({
 			url: '/api/parse-pdf',
 			type: 'POST',
@@ -41,7 +46,40 @@ $(document).ready(function(){
 			success: function(result){
 				$('#result-field').text(result.message);
 				$('#results-saved-msg').show();
-				$('#google-sheet-link').attr('href', 'https://docs.google.com/spreadsheets/d/' + result['google_sheet_id'] + '/edit#gid=0');
+				$('#google-sheet-link').attr('href', 'https://docs.google.com/spreadsheets/d/' + result.google_sheet_id + '/edit#gid=0');
+
+
+				console.log(result.parsed_filenames);
+
+				for (parsedFileName in result.parsed_filenames) {
+					$('#parsed-files').append(
+						$('<li></li>').append(
+							$('<a></a>').text(parsedFileName).attr(
+								{
+									'href': result.parsed_filenames[parsedFileName],
+									'target': '_blank'
+								}
+							)
+						)
+					);
+
+					$('#parsed-files-block').show();
+				}
+
+				for (errorFileName in result.error_filenames) {
+					$('#error-files').append(
+						$('<li></li>').append(
+							$('<a></a>').text(errorFileName).attr(
+								{
+									'href': result.error_filenames[errorFileName],
+									'target': '_blank'
+								}
+							)
+						)
+					);
+
+					$('#error-files-block').show();
+				}
 			},
 			error: function(){
 				alert('Error in AJAX((99(((((99((');

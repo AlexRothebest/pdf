@@ -3,7 +3,13 @@
 	left: 35%;
 }
 
-#pdf-file-input, #results-saved-msg {
+#content > * {
+	position: relative;
+	left: 5%;
+}
+
+#pdf-file-input,
+#results-saved-msg {
 	display: none;
 }
 
@@ -11,15 +17,8 @@
 	text-decoration: none;
 }
 
-#uploaded-files-hint, #results-saved-msg {
-	position: relative;
-	left: 5%;
-}
-
 #pdf-input-label {
 	margin-top: 40px;
-	position: relative;
-	left: 5%;
 	padding: 10px;
 	font-size: 1.2em;
 	color: #00802b;
@@ -40,8 +39,6 @@
 	border: 1px solid blue;
 	border-radius: 5px;
 	color: blue;
-	position: relative;
-	left: 5%;
 	transition: 0.3s;
 	display: block;
 	cursor: pointer;
@@ -53,8 +50,12 @@
 	color: white;
 }
 
+
 .result-text {
 	text-decoration: none;
-	position: relative;
-	left: 5%;
+}
+
+#parsed-files-block,
+#error-files-block {
+	display: none;
 }
