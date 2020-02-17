@@ -441,7 +441,7 @@ def parse_pdf_file(request):
 
 
 		text = get_pdf_data(filename)
-		print(text)
+		# print(text)
 
 		order_id = gft(text, 'Order ID:', 'Total Vehicles:')
 		try:
