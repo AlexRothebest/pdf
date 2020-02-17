@@ -681,9 +681,10 @@ def parse_pdf_file(request):
 		client = Client.objects.get(account = request.user)
 		filenames_to_parse = []
 		for file in request.FILES.getlist('pdf-file')[:100]:
+			time_now = time.time()
 			file_name = file.name
-			file_path = f'{media_base_dir}/{client.account.username}/{time.time()}-{file_name}'
-			file_url = f'{media_base_url}/{client.account.username}/{time.time()}-{file_name}'
+			file_path = f'{media_base_dir}/{client.account.username}/{time_now}-{file_name}'
+			file_url = f'{media_base_url}/{client.account.username}/{time_now}-{file_name}'
 
 			filenames_to_parse.append([file_name, file_path, file_url])
 
