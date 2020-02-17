@@ -609,9 +609,9 @@ def parse_pdf_file(request):
 				'=ГИПЕРССЫЛКА("{}";"{}")'.format(origin_address_link, pi_address),
 				pi_phones[0], pickup_exactly,
 				'=ГИПЕРССЫЛКА("{}";"{}")'.format(destination_address_link, di_address),
-				di_phones[0], delivery_estimated.replace('/', '.'), save_url],
-				['', '', '', '', '', '', '', pi_phones[1], '', '', '',\
-				 di_phones[1], 'LOT #: {}'.format(vehicle.lot)]]
+				di_phones[0], delivery_estimated.replace('/', '.'), save_url.replace(' ', '%20')],
+				['', '', '', '', '', '', '', pi_phones[1], '', '',\
+				 di_phones[1], '', 'LOT #: {}'.format(vehicle.lot)]]
 
 
 	def write_to_googlesheet(data, sheet_id, start_row):
