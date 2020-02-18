@@ -187,10 +187,10 @@ def add_user(request):
 
 			html_message = f'Congratulations, {name}!<br><br>\
 							 Somebody (probably you) registered you in our\
-							 <a href = "https://127.0.0.1:8000/" style = "color: blue; text-decoration: none;">small developing site</a><br><br>\
+							 <a href = "http://pdf.truckdispatch.pro" style = "color: blue; text-decoration: none;">http://pdf.truckdispatch.pro</a><br><br>\
 							 Your username: {username}<br>\
 							 Your password: {password}<br><br>\
-							 Enjoy!'
+							 Please send us your user experience to this email admin@truckdispatch.pro most reasonable things will be implemented ASAP'
 			send_mail('Account verification', 'Lol', 'Kek', [email], html_message = html_message)
 
 			new_user = User.objects.create_user(username=username,
@@ -231,7 +231,7 @@ def restore_password(request):
 
 	if request.is_ajax() and request.method == 'POST':
 		try:
-			username = request.POST['username']
+			username = request.POST['username'].lower()
 
 			print(f'Restoring password by username {username}')
 
@@ -269,7 +269,9 @@ def restore_password(request):
 		user.set_password(new_password)
 		user.save()
 
-		send_mail('Restoring password', '', '', [email], html_message = 'Hello, ' + name + '!<br><br>Your new password: ' + new_password + '<br><br>Enjoy!')
+		send_mail('Reset password on Scan PDF ', '', '', [email], html_message = f'''Hello, {name}!<br><br>
+																					 Your new password: {new_password}<br><br>
+																					 Stay with us!''')
 
 		result = {
 			'status': 'accepted',
