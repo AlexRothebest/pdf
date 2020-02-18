@@ -59,3 +59,16 @@
 #error-files-block {
 	display: none;
 }
+
+
+#write-data-in-block {
+	margin-bottom: 20px;
+}
+
+
+#next-row-to-write-data-field {
+	width: 50px;
+	padding: 5px;
+	border: 1px solid black;
+	border-radius: 3px;
+}

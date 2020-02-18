@@ -48,6 +48,7 @@ input {
 	color: blue;
 	transition: 0.3s;
 	cursor: pointer;
+	outline: none;
 }
 #login-btn:hover {
 	background: blue;

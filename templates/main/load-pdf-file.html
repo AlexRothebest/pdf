@@ -19,9 +19,14 @@
 
 
 		<div id='content'>
+			<div id='write-data-in-block'>
+				<a>Write data in the row number:</a>
+				<input type='number' id='next-row-to-write-data-field' value={{ client.next_row_to_write_data }}>
+			</div>
+			<br>
 			<input type='file' name='pdf-file' id='pdf-file-input' multiple />
 			<label for='pdf-file-input' id='pdf-input-label'>Upload PDF-files</label>
-			<p id='uploaded-files-hint'>0 file(s) uploaded</p>
+			<p id='uploaded-files-hint'>0 file(s) are uploaded</p>
 			<br>
 			<button id='load-file-btn'>Scan files</button>
 			<br>

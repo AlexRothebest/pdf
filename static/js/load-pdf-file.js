@@ -15,7 +15,7 @@ function getCookie(name) {
 
 $(document).ready(function(){
 	$('#pdf-file-input').change(function() {
-		$('#uploaded-files-hint').text($('#pdf-file-input').prop('files').length + ' file(s) uploaded');
+		$('#uploaded-files-hint').text($('#pdf-file-input').prop('files').length + ' file(s) are uploaded');
 	});
 
 	$('#load-file-btn').click(function(){
@@ -26,7 +26,11 @@ $(document).ready(function(){
 			fd.append('pdf-file', files[fileNum]);
 		}
 
-		$('#result-field').text('Parsing in process...');
+		fd.nextRowToWriteData = 20;
+
+		console.log(fd);
+
+		$('#result-field').text('Scanning files...');
 		$('#results-saved-msg').hide();
 
 		$('#parsed-files, #error-files').empty();
@@ -41,12 +45,16 @@ $(document).ready(function(){
 			processData: false,
 			contentType: false,
 			headers: {
-				'X-CSRFToken': getCookie('csrftoken')
+				'X-CSRFToken': getCookie('csrftoken'),
+				nextRowToWriteData: $('#next-row-to-write-data-field').val()
 			},
 			success: function(result){
 				$('#result-field').text(result.message);
 				$('#results-saved-msg').show();
+
 				$('#google-sheet-link').attr('href', 'https://docs.google.com/spreadsheets/d/' + result.google_sheet_id + '/edit#gid=0');
+
+				$('#next-row-to-write-data-field').val(result.next_row_to_write_data);
 
 
 				console.log(result.parsed_filenames);

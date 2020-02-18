@@ -123,6 +123,7 @@ def add_user(request):
 			'Vehicle',
 			'Cost $',
 			'Miles',
+			'Price per mile'
 			'From Address',
 			'Pickup Phone',
 			'Pick Up Date',
@@ -630,11 +631,12 @@ def parse_pdf_file(request):
 		vehicle = vehicles[0]
 		data_to_return = [[company_name, order_id, company_phone, '', price,
 						   f'=ГИПЕРССЫЛКА("{direction_link}";"{direction_length}")',
+						   round(price/direction_length, 2),
 						   f'=ГИПЕРССЫЛКА("{origin_address_link}";"{pi_address}")',
 						   '', pickup_exactly,
 						   f'=ГИПЕРССЫЛКА("{destination_address_link}";"{di_address}")',
 						   '', delivery_estimated.replace('/', '.'), save_url.replace(' ', '%20')],
-						   ['', '', '', '', '', '', '', '', '', '',\
+						   ['', '', '', '', '', '', '', '', '', '', '',\
 						    '', '', '   '.join(f'LOT #: {vehicle.lot}' for vehicle in vehicles)]]
 		for vehicle_number in range(len(vehicles)):
 			try:
@@ -645,14 +647,14 @@ def parse_pdf_file(request):
 
 		for di_phone_number in range(len(di_phones)):
 			try:
-				data_to_return[di_phone_number][10] = di_phones[di_phone_number]
+				data_to_return[di_phone_number][11] = di_phones[di_phone_number]
 			except:
 				data_to_return.append(['', '', '',  '', '', '', '', '', '', '',
 									   di_phones[di_phone_number], '', ''])
 
 		for pi_phone_number in range(len(pi_phones)):
 			try:
-				data_to_return[pi_phone_number][7] = pi_phones[pi_phone_number]
+				data_to_return[pi_phone_number][8] = pi_phones[pi_phone_number]
 			except:
 				data_to_return.append(['', '', '', '', '', '', '', pi_phones[pi_phone_number],
 									   '', '', '', '', ''])
@@ -682,8 +684,10 @@ def parse_pdf_file(request):
 		media_base_url = f"http://{request.build_absolute_uri().split('://')[1].split('/')[0]}/media"
 
 		client = Client.objects.get(account = request.user)
+
+		client.next_row_to_write_data = int(request.headers['nextRowToWriteData'])
 		filenames_to_parse = []
-		for file in request.FILES.getlist('pdf-file')[:100]:
+		for file in request.FILES.getlist('pdf-file'):
 			time_now = time.time()
 			file_name = file.name
 			file_path = f'{media_base_dir}/{client.account.username}/{time_now}-{file_name}'
@@ -720,7 +724,8 @@ def parse_pdf_file(request):
 			'message': f'{len(filenames_to_parse) - len(error_filenames)} file(s) were scaned successfully',
 			'google_sheet_id': client.google_sheet_id,
 			'parsed_filenames': parsed_filenames,
-			'error_filenames': error_filenames
+			'error_filenames': error_filenames,
+			'next_row_to_write_data': client.next_row_to_write_data
 		}
 		if len(error_filenames) > 0:
 			result['message'] += f", {len(error_filenames)} file(s) can't be scaned"
