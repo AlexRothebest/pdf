@@ -626,13 +626,13 @@ def parse_pdf_file(request):
 
 		vehicle = vehicles[0]
 		data_to_return = [[company_name, order_id, company_phone, '', price,
-						   '=ГИПЕРССЫЛКА("{direction_link}";"{direction_length}")',
-						   '=ГИПЕРССЫЛКА("{origin_address_link}";"{pi_address}")',
+						   f'=ГИПЕРССЫЛКА("{direction_link}";"{direction_length}")',
+						   f'=ГИПЕРССЫЛКА("{origin_address_link}";"{pi_address}")',
 						   '', pickup_exactly,
-						   '=ГИПЕРССЫЛКА("{destination_address_link}";"{di_address}")',
+						   f'=ГИПЕРССЫЛКА("{destination_address_link}";"{di_address}")',
 						   '', delivery_estimated.replace('/', '.'), save_url.replace(' ', '%20')],
 						   ['', '', '', '', '', '', '', '', '', '',\
-						    '', '', '   '.join('LOT #: {vehicle.lot}' for vehicle in vehicles)]]
+						    '', '', '   '.join(f'LOT #: {vehicle.lot}' for vehicle in vehicles)]]
 		for vehicle_number in range(len(vehicles)):
 			try:
 				data_to_return[vehicle_number][3] = vehicles[vehicle_number].name
