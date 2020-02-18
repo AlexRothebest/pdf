@@ -419,6 +419,9 @@ def parse_pdf_file(request):
 
 	def get_data(filename, save_url, client):
 		def extract_address(text):
+			if '*CONTACT DISPATCHER*' in text:
+				return text.split('*CONTACT DISPATCHER*')[-1]
+
 			try:
 				x = int(text[:6])
 				address = text[6:]
