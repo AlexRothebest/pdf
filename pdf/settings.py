@@ -117,4 +117,15 @@ EMAIL_HOST_PASSWORD = 'lzlxlclv'
 DEFAULT_FROM_EMAIL = 'Alex'
 DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
 
+
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'truckdispatch.pro'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'noreply@truckdispatch.pro'
+# EMAIL_HOST_PASSWORD = 'YgRN6Zkp'
+# DEFAULT_FROM_EMAIL = 'Truckdispatch'
+# DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
 # django_heroku.settings(locals())

@@ -56,6 +56,16 @@ def restore_password(request):
 	return render(request, 'main/restore-password.html', args)
 
 
+def change_password(request):
+	if request.user.is_authenticated:
+		args = get_username_and_status(request)
+
+		return render(request, 'main/change-password.html', args)
+	else:
+		return redirect('/')
+
+
+
 def load_pdf(request):
 	if request.user.is_authenticated:
 		args = get_username_and_status(request)

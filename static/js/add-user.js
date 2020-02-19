@@ -90,7 +90,7 @@ $(document).ready(function() {
 					success: function(result) {
 						$('#wait_msg').hide();
 						if (result.status == 'accepted') {
-							location.replace('/');
+							// location.replace('/');
 						} else {
 							$('#error_msg_container').text(result.message);
 							$('#error_msg_container').show();

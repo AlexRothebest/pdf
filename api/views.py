@@ -191,7 +191,7 @@ def add_user(request):
 							 Your username: {username}<br>\
 							 Your password: {password}<br><br>\
 							 Please send us your user experience to this email admin@truckdispatch.pro most reasonable things will be implemented ASAP'
-			send_mail('Account verification', 'Lol', 'Kek', [email], html_message = html_message)
+			send_mail('Account verification', '', '', [email], html_message = html_message)
 
 			new_user = User.objects.create_user(username=username,
 												password=password)

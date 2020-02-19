@@ -20,15 +20,21 @@ $(document).ready(function(){
 
 	$('#load-file-btn').click(function(){
 		var files = $('#pdf-file-input').prop('files'),
-			fd = new FormData;
+			fd = new FormData,
+			nextRowToWriteData = parseInt($('#next-row-to-write-data-field').val());
+
+
+		if (isNaN(nextRowToWriteData)) {
+			nextRowToWriteData = 3
+		}
+
+		$('#next-row-to-write-data-field').val(nextRowToWriteData);
+
 
 		for (let fileNum in files) {
 			fd.append('pdf-file', files[fileNum]);
 		}
 
-		fd.nextRowToWriteData = 20;
-
-		console.log(fd);
 
 		$('#result-field').text('Scanning files...');
 		$('#results-saved-msg').hide();
@@ -36,6 +42,7 @@ $(document).ready(function(){
 		$('#parsed-files, #error-files').empty();
 
 		$('#parsed-files-block, #error-files-block').hide();
+
 
 		$.ajax({
 			url: '/api/parse-pdf',
@@ -46,7 +53,7 @@ $(document).ready(function(){
 			contentType: false,
 			headers: {
 				'X-CSRFToken': getCookie('csrftoken'),
-				nextRowToWriteData: $('#next-row-to-write-data-field').val()
+				nextRowToWriteData: nextRowToWriteData
 			},
 			success: function(result){
 				$('#result-field').text(result.message);
