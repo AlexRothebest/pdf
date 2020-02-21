@@ -109,23 +109,22 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'lqlqlololala@gmail.com'
-EMAIL_HOST_PASSWORD = 'lzlxlclv'
-DEFAULT_FROM_EMAIL = 'Alex'
-DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
-
-
 # EMAIL_USE_TLS = True
-# EMAIL_HOST = 'truckdispatch.pro'
+# EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
-# EMAIL_HOST_USER = 'noreply@truckdispatch.pro'
-# EMAIL_HOST_PASSWORD = 'YgRN6Zkp'
-# DEFAULT_FROM_EMAIL = 'Truckdispatch'
+# EMAIL_HOST_USER = 'lqlqlololala@gmail.com'
+# EMAIL_HOST_PASSWORD = 'lzlxlclv'
+# DEFAULT_FROM_EMAIL = 'Alex'
 # DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.timeweb.ru'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'noreply@truckdispatch.pro'
+EMAIL_HOST_PASSWORD = 'YgRN6Zkp'
+DEFAULT_FROM_EMAIL = 'noreply@truckdispatch.pro'
+DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
 
 
 # django_heroku.settings(locals())

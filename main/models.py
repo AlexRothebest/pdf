@@ -10,6 +10,8 @@ class Client(models.Model):
 	status = models.CharField(max_length=30, choices=[('a', 'Admin'), ('u', 'User')], null=True)
 	account = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
+	number_of_registered_googlesheets = models.IntegerField(default=0)
+
 	number_of_parsed_files = models.IntegerField(default=0)
 
 	def __str__(self):

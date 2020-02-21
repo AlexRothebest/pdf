@@ -65,6 +65,14 @@ def change_password(request):
 		return redirect('/')
 
 
+def new_googlesheet(request):
+	if request.user.is_authenticated:
+		args = get_username_and_status(request)
+
+		return render(request, 'main/new-googlesheet.html', args)
+	else:
+		return redirect('/')
+
 
 def load_pdf(request):
 	if request.user.is_authenticated:

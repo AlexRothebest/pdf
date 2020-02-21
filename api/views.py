@@ -185,13 +185,21 @@ def add_user(request):
 				}
 				return return_json_response(result)
 
+
 			html_message = f'Congratulations, {name}!<br><br>\
 							 Somebody (probably you) registered you in our\
-							 <a href = "http://pdf.truckdispatch.pro" style = "color: blue; text-decoration: none;">http://pdf.truckdispatch.pro</a><br><br>\
+							 <a href = "http://pdf.truckdispatch.pro" style = "color: blue; text-decoration: none;">site</a><br><br>\
 							 Your username: {username}<br>\
 							 Your password: {password}<br><br>\
-							 Please send us your user experience to this email admin@truckdispatch.pro most reasonable things will be implemented ASAP'
-			send_mail('Account verification', '', '', [email], html_message = html_message)
+							 Please send us your user experience to this email admin@truckdispatch.pro most reasonable things will be implementeв ASAP'
+
+			send_mail(
+				'Scan PDF Account Registration',
+				'', '',
+				[email], 
+				html_message = html_message
+			)
+
 
 			new_user = User.objects.create_user(username=username,
 												password=password)
@@ -209,7 +217,7 @@ def add_user(request):
 				status = status[0],
 				account = new_user,
 				google_sheet_id = google_sheet_id
-				)
+			)
 			new_client.save()
 			print('\n\nNew client was created\n\n')
 
@@ -269,9 +277,14 @@ def restore_password(request):
 		user.set_password(new_password)
 		user.save()
 
-		send_mail('Reset password on Scan PDF ', '', '', [email], html_message = f'''Hello, {name}!<br><br>
-																					 Your new password: {new_password}<br><br>
-																					 Stay with us!''')
+		send_mail(
+			'Reset password on Scan PDF ',
+			'', '',
+			[email],
+			html_message = f'''Hello, {name}!<br><br>
+							   Your new password: {new_password}<br><br>
+							   Stay with us!'''
+		)
 
 		result = {
 			'status': 'accepted',
