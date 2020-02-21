@@ -49,6 +49,7 @@ function authenticateUser() {
 
 $(document).ready(function () {
 	$('#login-btn').click(authenticateUser);
+
 	$('input').keyup(function(e) {
 		if (e.keyCode == 13) {
 			authenticateUser();

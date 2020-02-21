@@ -286,6 +286,44 @@ def restore_password(request):
 		return return_json_response(result, 400)
 
 
+def change_password(request):
+	if request.user.is_authenticated:
+		if request.is_ajax() and request.method == 'POST':
+			client = Client.objects.get(account = request.user)
+
+			old_password = request.POST['oldPassword']
+			new_password = request.POST['newPassword']
+
+			user = client.account
+			if user.check_password(old_password):
+				user.set_password(new_password)
+				user.save()
+
+				result = {
+					'status': 'accepted',
+					'message': ''
+				}
+				return return_json_response(result)
+			else:
+				result = {
+					'status': 'Not accepted',
+					'message': 'Wrong password'
+				}
+				return return_json_response(result, 200)
+		else:
+			result = {
+				'status': 'Not accepted',
+				'message': 'Wrong method'
+			}
+			return return_json_response(result, 400)
+	else:
+		result = {
+			'status': 'Not accepted',
+			'message': 'Authentication required'
+		}
+		return return_json_response(result, 400)
+
+
 def change_clients_data(request):
 	if request.user.is_authenticated:
 		if request.is_ajax() and request.method == 'POST':
