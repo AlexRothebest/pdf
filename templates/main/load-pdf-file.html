@@ -23,7 +23,7 @@
 				<div id='write-data-in-block'>
 					<a>Write data to the googlesheet to the row number:</a>
 					<input type='number' id='next-row-to-write-data-field'
-						   value={{ client.next_row_to_write_data }}>
+						   value={{ client.googlesheet_set.first().next_row_to_write_data }}>
 				</div>
 				<span class='tooltip'>You can choose google sheet row</span>
 			</div>
