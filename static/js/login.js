@@ -34,7 +34,7 @@ function authenticateUser() {
 		success: function(result) {
 			$('#processing_login').hide();
 			$('#forgot_password_msg').css({'visibility': 'visible'});
-			if (result.status == 'accepted') {
+			if (result.status == 'Accepted') {
 				location.replace('/');
 			} else {
 				$('#error_msg_container').text(result.message);

@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.urls import path
 
 from .views import login, logout, add_user, restore_password, change_password, parse_pdf_file,\
-				   change_clients_data, delete_clients, download_clients_parsed_data
+				   change_clients_data, delete_clients, download_clients_parsed_data,\
+				   add_new_googlesheet
 
 
 urlpatterns = [
@@ -14,6 +15,8 @@ urlpatterns = [
 
 	path('delete-clients', delete_clients),
 	path('change-clients-data', change_clients_data),
+
+	path('add-new-googlesheet', add_new_googlesheet),
 
 	path('parse-pdf', parse_pdf_file),
 

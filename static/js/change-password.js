@@ -66,7 +66,7 @@ function changePassword() {
 			'X-CSRFToken': getCookie('csrftoken')
 		},
 		success: function(result) {
-			if (result.status == 'accepted') {
+			if (result.status == 'Accepted') {
 				$('#wait-msg').hide();
 
 				location.href = '/';

@@ -8,7 +8,7 @@ from django.conf import settings
 from django.http import HttpResponse
 
 
-from main.models import Client
+from main.models import Client, GoogleSheet
 from myadmin.models import ParsedData, Vehicle
 
 
@@ -84,7 +84,7 @@ def login(request):
 		if user is not None:
 			auth.login(request, user)
 			result = {
-				'status': 'accepted',
+				'status': 'Accepted',
 				'message': 'OK'
 			}
 		else:
@@ -106,48 +106,13 @@ def login(request):
 def logout(request):
 	auth.logout(request)
 	result = {
-		'status': 'accepted',
+		'status': 'Accepted',
 		'message': 'Logout successful'
 	}
 	return redirect('/')
 
 
 def add_user(request):
-	def init_googlesheet(sheet_id):
-		global service
-
-		to_write_values = [[
-			'Broker',
-			'Order ID',
-			'Broker phone',
-			'Vehicle',
-			'Cost $',
-			'Miles',
-			'Price per mile'
-			'From Address',
-			'Pickup Phone',
-			'Pick Up Date',
-			'To',
-			'Receiver phone',
-			'Deliver Date',
-			'Disp Sheet',
-			'BOL'
-		]]
-		values = service.spreadsheets().values().batchUpdate(
-			spreadsheetId=sheet_id,
-			body={
-				'valueInputOption': 'USER_ENTERED',
-				'data': [
-					{
-						'majorDimension': 'ROWS',
-						'range': 'A1:X2',
-						'values': to_write_values
-					}
-				]
-			}
-		).execute()
-
-
 	if request.is_ajax() and request.method == 'POST':
 		name = request.POST['name']
 		email = request.POST['email'].lower()
@@ -222,7 +187,7 @@ def add_user(request):
 			print('\n\nNew client was created\n\n')
 
 			result = {
-				'status': 'accepted',
+				'status': 'Accepted',
 				'message': 'OK'
 			}
 			return return_json_response(result, 201)
@@ -287,7 +252,7 @@ def restore_password(request):
 		)
 
 		result = {
-			'status': 'accepted',
+			'status': 'Accepted',
 			'message': ''
 		}
 		return return_json_response(result)
@@ -313,7 +278,7 @@ def change_password(request):
 				user.save()
 
 				result = {
-					'status': 'accepted',
+					'status': 'Accepted',
 					'message': ''
 				}
 				return return_json_response(result)
@@ -359,7 +324,7 @@ def change_clients_data(request):
 				user.save()
 
 			result = {
-				'status': 'accepted',
+				'status': 'Accepted',
 				'message': ''
 			}
 			return return_json_response(result)
@@ -398,8 +363,104 @@ def delete_clients(request):
 					not_deleted_clients_number += 1
 
 			result = {
-				'status': 'accepted',
+				'status': 'Accepted',
 				'message': f"{deleted_clients_number} clients deleted successfully, {not_deleted_clients_number} clients weren't deleted"
+			}
+			return return_json_response(result)
+		else:
+			result = {
+				'status': 'Not accepted',
+				'message': 'Wrong method'
+			}
+			return return_json_response(result, 400)
+	else:
+		result = {
+			'status': 'Not accepted',
+			'message': 'Authentication required'
+		}
+		return return_json_response(result, 400)
+
+
+def add_new_googlesheet(request):
+	def init_googlesheet(sheet_id):
+		global service
+
+		to_write_values = [[
+			'Broker',
+			'Order ID',
+			'Broker phone',
+			'Vehicle',
+			'Cost $',
+			'Miles',
+			'Price per mile'
+			'From Address',
+			'Pickup Phone',
+			'Pick Up Date',
+			'To',
+			'Receiver phone',
+			'Deliver Date',
+			'Disp Sheet',
+			'BOL'
+		]]
+		values = service.spreadsheets().values().batchUpdate(
+			spreadsheetId=sheet_id,
+			body={
+				'valueInputOption': 'USER_ENTERED',
+				'data': [
+					{
+						'majorDimension': 'ROWS',
+						'range': 'A1:X2',
+						'values': to_write_values
+					}
+				]
+			}
+		).execute()
+
+
+	if request.user.is_authenticated:
+		if request.is_ajax() and request.method == 'POST':
+			client = Client.objects.get(account = request.user)
+
+
+			google_sheet_name = request.POST['nameOfTheGoogleSheet']
+			google_sheet_id = request.POST['linkToTheGoogleSheet']
+
+
+			if len(client.googlesheet_set.filter(name=google_sheet_name)) != 0:
+				result = {
+					'status': 'Not accepted',
+					'message': 'Existing name'
+				}
+				return return_json_response(result)
+			elif len(client.googlesheet_set.filter(sheet_id=google_sheet_id)) != 0:
+				result = {
+					'status': 'Not accepted',
+					'message': 'Existing link'
+				}
+				return return_json_response(result)
+
+
+			try:
+				init_googlesheet(google_sheet_id)
+			except:
+				result = {
+					'status': 'Not accepted',
+					'message': 'Not prepared googlesheet'
+				}
+				return return_json_response(result)
+
+
+			GoogleSheet(
+				name=google_sheet_name,
+				sheet_id=google_sheet_id,
+
+				owner=client
+			).save()
+
+
+			result = {
+				'status': 'Accepted',
+				'message': ''
 			}
 			return return_json_response(result)
 		else:
@@ -773,7 +834,7 @@ def parse_pdf_file(request):
 		client.save()
 
 		result = {
-			'status': 'accepted',
+			'status': 'Accepted',
 			'message': f'{len(filenames_to_parse) - len(error_filenames)} file(s) were scaned successfully',
 			'google_sheet_id': client.google_sheet_id,
 			'parsed_filenames': parsed_filenames,

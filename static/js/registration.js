@@ -83,7 +83,7 @@ function registerUser() {
 				},
 				success: function(result) {
 					$('#wait_msg').hide();
-					if (result.status == 'accepted') {
+					if (result.status == 'Accepted') {
 						location.replace('/');
 					} else {
 						$('#error_msg_container').text(result.message);

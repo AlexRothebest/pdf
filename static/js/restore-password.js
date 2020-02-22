@@ -45,7 +45,7 @@ function restorePassword(field) {
 		},
 		success: function(result) {
 			hideAllMsg();
-			if (result.status == 'accepted') {
+			if (result.status == 'Accepted') {
 				if (field == 'username') {
 					$('#email_sent_msg1').show();
 				} else {

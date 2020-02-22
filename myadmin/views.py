@@ -5,12 +5,10 @@ from main.models import Client
 
 
 def get_username_and_status(request):
-	client = Client.objects.get(account=request.user)
-
 	args = {
-		'username': request.user.username,
-		'status': client.status
+		'client': Client.objects.get(account=request.user)
 	}
+
 	args.update(csrf(request))
 
 	return args

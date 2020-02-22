@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Login</title>
+
+
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+
+
+		<link rel='stylesheet' type='text/css' href='/static/css/main.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/navbar.css'>
+		<link rel='stylesheet' type='text/css' href='/static/css/new-googlesheet.css'>
+	</head>
+	<body>
+		{% include 'includes/navbar.html' with username=client.account.username status=client.status %}
+
+
+		{% csrf_token %}
+
+
+		<section>
+			<div id='instructions'>
+				{% if client.number_of_registered_googlesheets == 0 %}
+					<p>Before you start using our service you need to register at least one googlesheet where data from PDF files will be stored</p>
+				{% endif %}
+				<p>Instructions how to prepare your googlesheet to work:</p>
+				<ol>
+					<li>Go to <a href='https://sheets.google.com' target='_blank'>sheets.google.com</a> and create a new googlesheet</li>
+					<li>Print button "Share" (in the right top corner)</li>
+					<li>Share the googlesheet with this account:<br>account@sheets-266111.iam.gserviceaccount.com</li>
+					<li>The googlesheet is now ready to work!<br>
+						Now, copy it's URL-address and paste it to the "Link to your googlesheet" field in the form</li>
+					<li>Name your googlesheet as you want</li>
+				</ol>
+			</div>
+
+
+			<p>Link to your googlesheet:</p>
+			<input type='text' id='link-to-the-google-sheet-field' placeholder='Link to your googlesheet'>
+			<p id='link-error-msg'>error</p>
+			<p>Name of the googlesheet:</p>
+			<input type='text' id='name-of-the-google-sheet-field' value='Googlesheet #{{ client.number_of_registered_googlesheets }}' placeholder='Name of the googlesheet'>
+			<p id='name-error-msg'>error</p>
+			<button id='register-btn'>Register the googlesheet</button>
+			<br>
+			<a id='wait-msg'><br>Just a second...</a>
+		</section>
+
+
+		<script src='/static/js/new-googlesheet.js'></script>
+	</body>
+</html>

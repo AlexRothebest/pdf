@@ -5,12 +5,8 @@ from .models import Client
 
 
 def get_username_and_status(request):
-	client = Client.objects.get(account=request.user)
-
 	args = {
-		'username': request.user.username,
-		'status': client.status,
-		'client': client
+		'client': Client.objects.get(account=request.user)
 	}
 	args.update(csrf(request))
 
@@ -76,6 +72,10 @@ def new_googlesheet(request):
 
 def load_pdf(request):
 	if request.user.is_authenticated:
+		client = Client.objects.get(account=request.user)
+		if len(client.googlesheet_set.all()) == 0:
+			return redirect('/new-googlesheet/')
+
 		args = get_username_and_status(request)
 
 		return render(request, 'main/load-pdf-file.html', args)

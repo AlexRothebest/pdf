@@ -12,7 +12,7 @@
 		<link rel='stylesheet' type='text/css' href='/static/css/client-info.css'>
 	</head>
 	<body>
-		{% include 'includes/navbar.html' with username=username status=status %}
+		{% include 'includes/navbar.html' with username=client.account.username status=client.status %}
 
 
 		{% csrf_token %}
