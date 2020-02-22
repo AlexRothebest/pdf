@@ -1,12 +1,23 @@
 #content {
 	position: relative;
-	left: 35%;
+	left: 25%;
 }
 
 #content > * {
 	position: relative;
 	left: 5%;
 }
+
+
+#select-google-sheet-field {
+	width: 300px;
+	height: 27px;
+	background: white;
+	border: 1px solid black;
+	border-radius: 3px;
+	outline: none;
+}
+
 
 #pdf-file-input,
 #results-saved-msg {
@@ -78,6 +89,7 @@
 .tooltip-block {
 	position: relative;
 	display: inline-block;
+	margin-top: 30px;
 }
 
 

@@ -5,8 +5,11 @@ from .models import Client
 
 
 def get_username_and_status(request):
+	client = Client.objects.get(account=request.user)
+
 	args = {
-		'client': Client.objects.get(account=request.user)
+		'client': client,
+		'client_sheets': client.googlesheet_set.all()
 	}
 	args.update(csrf(request))
 

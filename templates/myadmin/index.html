@@ -61,7 +61,12 @@
 							<a>Admin</a>
 						</label>
 					</td>
-					<td class='googlesheet'><a href='https://docs.google.com/spreadsheets/d/{{ client.google_sheet_id }}' target='_blank'>Link</a></td>
+					<td class='googlesheet'>
+						{% for sheet in client.sheets %}
+							<a href='https://docs.google.com/spreadsheets/d/{{ sheet.sheet_id }}' target='_blank'>Link</a>
+							<br>
+						{% endfor %}
+					</td>
 					<td>{{ client.number_of_parsed_files }}</td>
 				</tr>
 			{% endfor %}

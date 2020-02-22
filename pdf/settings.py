@@ -122,7 +122,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.timeweb.ru'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'noreply@truckdispatch.pro'
-EMAIL_HOST_PASSWORD = 'YgRN6Zkp'
+EMAIL_HOST_PASSWORD = 'Tzg5kSiQ'
 DEFAULT_FROM_EMAIL = 'noreply@truckdispatch.pro'
 DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
 

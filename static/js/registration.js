@@ -51,15 +51,6 @@ function registerUser() {
 			$('#error_msg_container').show();
 			$('#password_field, #repeat_password_field').css('border-color', 'red');
 		} else {
-			try {
-				var googleSheetId = $('#google-sheet-id').val().split('/spreadsheets/d/')[1].split('/')[0];
-			} catch {
-				$('input#google-sheet-id').css('border-color', 'red');
-				$('#error_msg_container').text('Wrong link');
-				$('#error_msg_container').show();
-				return;
-			}
-
 			$('#error_msg_container').hide();
 			$('#wait_msg').show()
 
@@ -69,8 +60,7 @@ function registerUser() {
 				email: email,
 				status: 'user',
 				username: username,
-				password: password,
-				'google-sheet-id': googleSheetId
+				password: password
 			}
 
 			$.ajax({

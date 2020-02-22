@@ -18,10 +18,12 @@ $(document).ready(function(){
 		$('#uploaded-files-hint').text($('#pdf-file-input').prop('files').length + ' file(s) are uploaded');
 	});
 
+
 	$('#load-file-btn').click(function(){
 		var files = $('#pdf-file-input').prop('files'),
 			fd = new FormData,
-			nextRowToWriteData = parseInt($('#next-row-to-write-data-field').val());
+			nextRowToWriteData = parseInt($('#next-row-to-write-data-field').val()),
+			googlesheetId = $('#select-google-sheet-field').val();
 
 
 		if (isNaN(nextRowToWriteData)) {
@@ -53,7 +55,8 @@ $(document).ready(function(){
 			contentType: false,
 			headers: {
 				'X-CSRFToken': getCookie('csrftoken'),
-				nextRowToWriteData: nextRowToWriteData
+				nextRowToWriteData: nextRowToWriteData,
+				googlesheetId: googlesheetId
 			},
 			success: function(result){
 				$('#result-field').text(result.message);
@@ -100,5 +103,37 @@ $(document).ready(function(){
 				alert('Error in AJAX((99(((((99((');
 			}
 		});
+	});
+
+
+	let maxRow = 0;
+	for (let sheetData of googleSheetsData) {
+		if (sheetData.nextRow > maxRow) {
+			$('#select-google-sheet-field').val(sheetData.id);
+			$('#next-row-to-write-data-field').val(sheetData.nextRow);
+
+			$('#googlesheet-link').attr({
+				'href': 'https://docs.google.com/spreadsheets/d/' + sheetData.id + '/edit#gid=0'
+			})
+
+			maxRow = sheetData.nextRow;
+		}
+	}
+
+
+	$('#select-google-sheet-field').change(function() {
+		let selectedSheetId = $(this).val();
+
+		for (let sheetData of googleSheetsData) {
+			if (sheetData.id == selectedSheetId) {
+				$('#next-row-to-write-data-field').val(sheetData.nextRow);
+
+				break;
+			}
+		}
+
+		$('#googlesheet-link').attr({
+			'href': 'https://docs.google.com/spreadsheets/d/' + selectedSheetId + '/edit#gid=0'
+		})
 	});
 });

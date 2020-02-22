@@ -14,6 +14,7 @@ class Client(models.Model):
 
 	number_of_parsed_files = models.IntegerField(default=0)
 
+
 	def __str__(self):
 		return self.name
 

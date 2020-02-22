@@ -119,7 +119,6 @@ def add_user(request):
 		status = request.POST['status']
 		username = request.POST['username']
 		password = request.POST['password']
-		google_sheet_id = request.POST['google-sheet-id']
 
 		if request.user.is_authenticated:
 			client = Client.objects.get(account = request.user)
@@ -134,23 +133,13 @@ def add_user(request):
 				'message': 'This username is already taken'
 			}
 			return return_json_response(result)
-		# elif len(Client.objects.filter(email = email)) != 0:
-		# 	result = {
-		# 		'status': 'Not accepted',
-		# 		'message': 'This email is already taken'
-		# 	}
-		# 	return return_json_response(result)
+		elif len(Client.objects.filter(email = email)) != 0:
+			result = {
+				'status': 'Not accepted',
+				'message': 'This email is already taken'
+			}
+			return return_json_response(result)
 		else:
-			try:
-				init_googlesheet(google_sheet_id)
-			except:
-				result = {
-					'status': 'Error',
-					'message': "Sorry, but  it looks like you haven't prepared your googlesheet to the work correctly... Please, follow the instructions left of this form"
-				}
-				return return_json_response(result)
-
-
 			html_message = f'Congratulations, {name}!<br><br>\
 							 Somebody (probably you) registered you in our\
 							 <a href = "http://pdf.truckdispatch.pro" style = "color: blue; text-decoration: none;">site</a><br><br>\
@@ -181,7 +170,6 @@ def add_user(request):
 				email = email,
 				status = status[0],
 				account = new_user,
-				google_sheet_id = google_sheet_id
 			)
 			new_client.save()
 			print('\n\nNew client was created\n\n')
@@ -243,7 +231,7 @@ def restore_password(request):
 		user.save()
 
 		send_mail(
-			'Reset password on Scan PDF ',
+			'Truckdispatch.pro Reset password',
 			'', '',
 			[email],
 			html_message = f'''Hello, {name}!<br><br>
@@ -799,7 +787,17 @@ def parse_pdf_file(request):
 
 		client = Client.objects.get(account = request.user)
 
-		client.next_row_to_write_data = int(request.headers['nextRowToWriteData'])
+		google_sheet_id = request.headers['googleSheetId']
+		try:
+			google_sheet = client.googlesheet_set.get(sheet_id=google_sheet_id)
+		except:
+			result = {
+				'status': 'Not accepted',
+				'message': 'Wrong googlesheet id'
+			}
+			return return_json_response(result, 401)
+		google_sheet.next_row_to_write_data = int(request.headers['nextRowToWriteData'])
+
 		filenames_to_parse = []
 		for file in request.FILES.getlist('pdf-file'):
 			time_now = time.time()
@@ -818,12 +816,12 @@ def parse_pdf_file(request):
 				data = get_data(file_path, file_url, client)
 				write_to_googlesheet(
 					data,
-					client.google_sheet_id,
-					client.next_row_to_write_data
+					google_sheet_id,
+					google_sheet.next_row_to_write_data
 				)
 
 				client.number_of_parsed_files += 1
-				client.next_row_to_write_data += len(data) + 2
+				google_sheet.next_row_to_write_data += len(data) + 2
 
 				parsed_filenames[file_name] = file_url
 			except Exception as error:
@@ -832,14 +830,15 @@ def parse_pdf_file(request):
 				error_filenames[file_name] = file_url
 
 		client.save()
+		google_sheet.save()
 
 		result = {
 			'status': 'Accepted',
 			'message': f'{len(filenames_to_parse) - len(error_filenames)} file(s) were scaned successfully',
-			'google_sheet_id': client.google_sheet_id,
+			'google_sheet_id': google_sheet_id,
 			'parsed_filenames': parsed_filenames,
 			'error_filenames': error_filenames,
-			'next_row_to_write_data': client.next_row_to_write_data
+			'next_row_to_write_data': google_sheet.next_row_to_write_data
 		}
 		if len(error_filenames) > 0:
 			result['message'] += f", {len(error_filenames)} file(s) can't be scaned"

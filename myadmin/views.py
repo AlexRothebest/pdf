@@ -24,6 +24,9 @@ def home(request):
 		args = get_username_and_status(request)
 		args['all_clients'] = Client.objects.all()
 
+		for client_number in range(len(args['all_clients'])):
+			args['all_clients'][client_number].sheets = args['all_clients'][client_number].googlesheet_set.all()
+
 		return render(request, 'myadmin/index.html', args)
 	else:
 		return redirect('/')
