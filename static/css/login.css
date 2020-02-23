@@ -6,7 +6,9 @@ p {
 	color: red;
 }
 
-#login_error, #processing_login, #error_msg_container {
+#login_error,
+#processing_login,
+#error_msg_container {
 	display: none;
 	position: relative;
 	left: 1.1%;
@@ -24,7 +26,7 @@ p {
 section {
 	position: relative;
 	left: 35%;
-	transition: translateX(-50%);
+	max-width: 40%;
 }
 
 input {
@@ -39,7 +41,7 @@ input {
 
 #login-btn {
 	position: relative;
-	left: 1.1%;
+	left: 16.5%;
 	margin-top: 20px;
 	padding: 10px 20px;
 	background: transparent;
