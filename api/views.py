@@ -145,7 +145,7 @@ def add_user(request):
 							 <a href = "http://pdf.truckdispatch.pro" style = "color: blue; text-decoration: none;">site</a><br><br>\
 							 Your username: {username}<br>\
 							 Your password: {password}<br><br>\
-							 Please send us your user experience to this email admin@truckdispatch.pro most reasonable things will be implementeв ASAP'
+							 Please send us your user experience to this email admin@truckdispatch.pro most reasonable things will be implemented ASAP'
 
 			send_mail(
 				'Scan PDF Account Registration',
