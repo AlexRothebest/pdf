@@ -15,17 +15,17 @@ function getCookie(name) {
 
 
 function hideAllMsg() {
-	$('#wait_msg1').hide();
-	$('#wait_msg2').hide();
-	$('#email_sent_msg1').hide();
-	$('#email_sent_msg2').hide();
-	$('#wrong_username_msg').hide();
-	$('#wrong_email_msg').hide();
+	$(`#wait_msg1,
+	   #wait_msg2,
+	   #email_sent_msg1,
+	   #email_sent_msg2,
+	   #wrong_username_msg,
+	   #wrong_email_msg`).hide();
 }
-function sendMail(field) {
-	eval("var data = {" + field + ": $('#' + field + '_field').val()};");
 
-	alert(data.username);
+
+function restorePassword(field) {
+	eval("var data = {" + field + ": $('#' + field + '-field').val()};");
 
 	hideAllMsg();
 
@@ -43,17 +43,17 @@ function sendMail(field) {
 		headers: {
 			'X-CSRFToken': getCookie('csrftoken')
 		},
-		success: function(success) {
+		success: function(result) {
 			hideAllMsg();
-			if (success) {
+			if (result.status == 'Accepted') {
 				if (field == 'username') {
 					$('#email_sent_msg1').show();
 				} else {
 					$('#email_sent_msg2').show();
 				}
-				setTimeout(function() {location.replace('/login/')}, 5000);
+				// setTimeout(function() {location.replace('/login/')}, 5000);
 			} else {
-				if (field == 'username') {
+				if (result.message == 'Usename does not exist') {
 					$('#wrong_username_msg').show();
 				} else {
 					$('#wrong_email_msg').show();
@@ -66,3 +66,27 @@ function sendMail(field) {
 		}
 	});
 }
+
+
+$(document).ready(function () {
+	$('#restore-by-username-btn').click(function() {
+		restorePassword('username');
+	});
+
+	$('#username-field').keyup(function(e) {
+		if (e.keyCode == 13) {
+			restorePassword('username');
+		}
+	});
+
+
+	$('#restore-by-email-btn').click(function() {
+		restorePassword('email');
+	});
+
+	$('#email-field').keyup(function(e) {
+		if (e.keyCode == 13) {
+			restorePassword('email');
+		}
+	});
+});

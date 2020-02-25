@@ -1,9 +1,27 @@
 #content {
 	position: relative;
-	left: 35%;
+	left: 25%;
+	max-width: 70%;
 }
 
-#pdf-file-input, #results-saved-msg {
+#content > * {
+	position: relative;
+	left: 5%;
+}
+
+
+#select-google-sheet-field {
+	width: 300px;
+	height: 27px;
+	background: white;
+	border: 1px solid black;
+	border-radius: 3px;
+	outline: none;
+}
+
+
+#pdf-file-input,
+#results-saved-msg {
 	display: none;
 }
 
@@ -11,15 +29,8 @@
 	text-decoration: none;
 }
 
-#uploaded-files-hint, #results-saved-msg {
-	position: relative;
-	left: 5%;
-}
-
 #pdf-input-label {
 	margin-top: 40px;
-	position: relative;
-	left: 5%;
 	padding: 10px;
 	font-size: 1.2em;
 	color: #00802b;
@@ -40,8 +51,6 @@
 	border: 1px solid blue;
 	border-radius: 5px;
 	color: blue;
-	position: relative;
-	left: 5%;
 	transition: 0.3s;
 	display: block;
 	cursor: pointer;
@@ -53,8 +62,66 @@
 	color: white;
 }
 
+
 .result-text {
 	text-decoration: none;
+}
+
+#parsed-files-block,
+#error-files-block {
+	display: none;
+}
+
+
+#write-data-in-block {
+	margin-bottom: 20px;
+}
+
+
+#next-row-to-write-data-field {
+	width: 50px;
+	padding: 5px;
+	border: 1px solid black;
+	border-radius: 3px;
+	outline: none;
+}
+
+
+.tooltip-block {
 	position: relative;
-	left: 5%;
+	display: inline-block;
+	margin-top: 30px;
+}
+
+
+.tooltip-block .tooltip {
+	visibility: hidden;
+	width: 120px;
+	background-color: black;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+	position: absolute;
+	z-index: 1;
+	bottom: 110%;
+	left: 50%;
+	margin-left: -60px;
+}
+
+
+.tooltip-block .tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+
+.tooltip-block:hover .tooltip {
+	visibility: visible;
 }

@@ -1,0 +1,67 @@
+section {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+
+#instructions {
+	font-size: 1.2em;
+}
+
+#instructions ol li {
+	padding-bottom: 10px;
+}
+
+
+section input {
+	padding: 7px 12px;
+	border: 1px solid black;
+	border-radius: 3px;
+	margin-top: -20px;
+	outline: none;
+}
+
+
+#link-to-the-google-sheet-field {
+	width: 500px;
+}
+
+
+#google-sheet-name {
+	width: 250px;
+}
+
+
+#link-error-msg,
+#name-error-msg {
+	visibility: hidden;
+	color: red;
+}
+
+
+#wait-msg {
+	display: none;
+	position: relative;
+	left: 34%;
+}
+
+
+section button {
+	position: relative;
+	left: 43%;
+	transform: translateX(-50%);
+	padding: 9px 15px;
+	background: transparent;
+	border: 1px solid blue;
+	border-radius: 5px;
+	color: blue;
+	transition: 0.3s;
+	cursor: pointer;
+	outline: none;
+}
+section button:hover {
+	background: blue;
+	border: 1px solid transparent;
+	color: white;
+}
