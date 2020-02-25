@@ -930,12 +930,12 @@ def download_clients_parsed_data(request):
 					ws.write(row + 1, 9, parsed_file.di_address)
 
 				ws.write(row, 10, parsed_file.di_phone0)
+				ws.write(row, 11, parsed_file.delivery_estimated.replace('/', '.'))
 				ws.write(row, 12, xlwt.Formula(f'HYPERLINK("{parsed_file.save_url}"; "{parsed_file.save_url}")'))
 				ws.write(row, 13, parsed_file.emails)
 
 				ws.write(row + 1, 7, parsed_file.pi_phone1)
-				ws.write(row + 1, 10, parsed_file.delivery_estimated.replace('/', '.'))
-				ws.write(row + 1, 11, parsed_file.di_phone1)
+				ws.write(row + 1, 10, parsed_file.di_phone1)
 				ws.write(row + 1, 12, f'LOT #: {parsed_file.vehicle_set.all()[0].lot}')
 
 
