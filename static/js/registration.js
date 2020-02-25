@@ -91,6 +91,7 @@ function registerUser() {
 
 $(document).ready(function () {
 	$('#register_button').click(registerUser);
+
 	$('input').keyup(function(e) {
 		if (e.keyCode == 13) {
 			registerUser();

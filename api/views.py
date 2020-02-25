@@ -88,11 +88,21 @@ def login(request):
 				'message': 'OK'
 			}
 		else:
-			print(user)
-			result = {
-				'status': 'Not accepted',
-				'message': 'Wrong username or password'
-			}
+			try:
+				username = Client.objects.get(email=username).account.username
+
+				user = auth.authenticate(username = username, password = password)
+				if user is not None:
+					auth.login(request, user)
+					result = {
+						'status': 'Accepted',
+						'message': 'OK'
+					}
+			except:
+				result = {
+					'status': 'Not accepted',
+					'message': 'Wrong username or password'
+				}
 
 		return return_json_response(result)
 	else:

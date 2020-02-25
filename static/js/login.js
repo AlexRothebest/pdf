@@ -17,11 +17,18 @@ function authenticateUser() {
 	var username = $('#username_field').val(),
 		password = $('#password_field').val();
 
+
 	var data = {username: username, password: password};
 
+
 	$('#processing_login').show();
+
+
 	$('#forgot_password_msg').css({'visibility': 'hidden'});
-	$('#login_error').hide();
+
+	$(`#login_error,
+	   #error_msg_container`).hide();
+
 
 	$.ajax({
 		type: 'POST',
