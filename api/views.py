@@ -524,7 +524,7 @@ def parse_pdf_file(request):
 				# print(f'\n\n\nText: {text[pos1:]}\n\n\nSubstr 1: {substr1}\n\n\nSubstr 2: {substr2}\n\n\n')
 				raise Exception(f'The second substring is not in the text')
 			elif pos2 < pos1:
-				print(f'\n\n\nText: {text[pos1:]}\n\n\nSubstr 1: {substr1}\n\n\nSubstr 2: {substr2}\n\n\n')
+				# print(f'\n\n\nText: {text[pos1:]}\n\n\nSubstr 1: {substr1}\n\n\nSubstr 2: {substr2}\n\n\n')
 				raise Exception(f'The second substring occurs in the text earlier than the first one (pos1 = {pos1}, pos2 = {pos2})')
 
 		return text[pos1 : pos2].strip()
@@ -557,9 +557,10 @@ def parse_pdf_file(request):
 
 
 		text = get_pdf_data(filename)
-		# print(text)
+		print(text)
 
 		order_id = gft(text, 'Order ID:', 'Total Vehicles:')
+		print(order_id)
 		try:
 			total_vehicles = gft(text, 'Total Vehicles:', 'Carrier Information')
 		except:
@@ -591,8 +592,10 @@ def parse_pdf_file(request):
 		price = max([float(s.replace(',', '')) for s in re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
 					 gft(text, ':', ' ', text.find('Price'), text.find(':', text.find('Company*')) + 2))])
 		company_name = gft(text, 'Dispatch Sheet',\
+						   [number for number in\
 						   re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
-						   text[text.find('Dispatch Sheet'):])[0])
+						   text[text.find('Dispatch Sheet'):])\
+						   if len(number) >= 3][0])
 		if re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?', text[text.find('Dispatch Sheet'):])[0][0] == '.':
 			company_name += '.'
 		company_data = gft(text, company_name, 'Co. Phone:')
@@ -620,7 +623,7 @@ def parse_pdf_file(request):
 		vehicles = []
 		start_position = text.find('Vehicle Information')
 		for vehicle_number in range(1, 100):
-			print(vehicle_number)
+			# print(vehicle_number)
 			vehicle = PDFVehicle()
 			vehicle.name = gft(text, str(vehicle_number), 'Type:', start_position)
 			vehicle.type = gft(text, 'Type:', 'Color:', start_position)
@@ -640,11 +643,11 @@ def parse_pdf_file(request):
 				break
 			except:
 				try:
-					vehicle.additional_info = gft(text, 'Additional Info:', str(vehicle_number + 1), start_position)
-					start_position = text.find(str(vehicle_number + 1), text.find('Additional Info:', start_position))
+					vehicle.additional_info = gft(text, 'Additional Info:', f'{vehicle_number + 1}  ', start_position)
+					start_position = text.find(f'{vehicle_number + 1}  ', text.find('Additional Info:', start_position))
 				except:
-					vehicle.additional_info = gft(text, 'AdditionalInfo:', str(vehicle_number + 1), start_position)
-					start_position = text.find(str(vehicle_number + 1), text.find('AdditionalInfo:', start_position))
+					vehicle.additional_info = gft(text, 'AdditionalInfo:', f'{vehicle_number + 1}  ', start_position)
+					start_position = text.find(f'{vehicle_number + 1}  ', text.find('AdditionalInfo:', start_position))
 
 				vehicles.append(vehicle)
 
@@ -757,19 +760,19 @@ def parse_pdf_file(request):
 				data_to_return.append(['', '', '', vehicles[vehicle_number].name,
 									   '', '', '', '', '', '', '', '', ''])
 
-		for di_phone_number in range(len(di_phones)):
-			try:
-				data_to_return[di_phone_number][11] = di_phones[di_phone_number]
-			except:
-				data_to_return.append(['', '', '',  '', '', '', '', '', '', '',
-									   di_phones[di_phone_number], '', ''])
-
 		for pi_phone_number in range(len(pi_phones)):
 			try:
 				data_to_return[pi_phone_number][8] = pi_phones[pi_phone_number]
 			except:
-				data_to_return.append(['', '', '', '', '', '', '', pi_phones[pi_phone_number],
-									   '', '', '', '', ''])
+				data_to_return.append(['', '', '', '', '', '', '', '',
+									   pi_phones[pi_phone_number],  '', '', ''])
+
+		for di_phone_number in range(len(di_phones)):
+			try:
+				data_to_return[di_phone_number][11] = di_phones[di_phone_number]
+			except:
+				data_to_return.append(['', '', '',  '', '', '', '', '', '', '', '',
+									   di_phones[di_phone_number], ''])
 
 		return data_to_return
 
