@@ -557,10 +557,13 @@ def parse_pdf_file(request):
 
 
 		text = get_pdf_data(filename)
-		print(text)
+		# print(text)
 
 		order_id = gft(text, 'Order ID:', 'Total Vehicles:')
-		print(order_id)
+		try:
+			print(f'Parsed: {order_id}')
+		except:
+			pass
 		try:
 			total_vehicles = gft(text, 'Total Vehicles:', 'Carrier Information')
 		except:
