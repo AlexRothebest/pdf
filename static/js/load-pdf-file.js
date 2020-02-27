@@ -35,6 +35,10 @@ $(document).ready(function(){
 
 		for (let fileNum in files) {
 			fd.append('pdf-file', files[fileNum]);
+
+			if (fileNum == '9') {
+				break;
+			}
 		}
 
 

@@ -815,7 +815,7 @@ def parse_pdf_file(request):
 		google_sheet.next_row_to_write_data = int(request.headers['nextRowToWriteData'])
 
 		filenames_to_parse = []
-		for file in request.FILES.getlist('pdf-file'):
+		for file in request.FILES.getlist('pdf-file')[:10]:
 			time_now = time.time()
 			file_name = file.name
 			file_path = f'{media_base_dir}/{client.account.username}/{time_now}-{file_name}'
