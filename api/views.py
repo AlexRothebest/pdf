@@ -557,7 +557,7 @@ def parse_pdf_file(request):
 
 
 		text = get_pdf_data(filename)
-		# print(text)
+		print(text[700:])
 
 		order_id = gft(text, 'Order ID:', 'Total Vehicles:')
 		try:
@@ -598,9 +598,8 @@ def parse_pdf_file(request):
 						   [number for number in\
 						   re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
 						   text[text.find('Dispatch Sheet'):])\
-						   if len(number) >= 3][0])
-		if re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?', text[text.find('Dispatch Sheet'):])[0][0] == '.':
-			company_name += '.'
+						   if len(number) >= 2][0])
+		print(company_name)
 		company_data = gft(text, company_name, 'Co. Phone:')
 		company_phone = gft(text, 'Co. Phone:', 'Dispatch InfoContact:')
 		# di - Dispatch info
@@ -657,6 +656,8 @@ def parse_pdf_file(request):
 
 		# pi - Pickup information
 		pi_address = extract_address(gft(text, 'Name:', 'Phone:', text.find('Pickup Information')).split(':')[-1])
+		# pi_phones = re.findall(r'(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})',\
+		# 					   gft(text, 'Phone:', 'Delivery Information', text.find('Pickup Information')))
 		try:
 			try:
 				try:
