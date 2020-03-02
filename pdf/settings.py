@@ -127,6 +127,6 @@ DEFAULT_FROM_EMAIL = 'noreply@truckdispatch.pro'
 DEFAULT_TO_EMAIL = 'Alex_Rozhkov@ukr.net'
 
 
-from local_settings import *
+from .local_settings import *
 
 # django_heroku.settings(locals())
