@@ -557,7 +557,7 @@ def parse_pdf_file(request):
 
 
 		text = get_pdf_data(filename)
-		print(text[700:])
+		# print(text)
 
 		order_id = gft(text, 'Order ID:', 'Total Vehicles:')
 		try:
@@ -800,66 +800,73 @@ def parse_pdf_file(request):
 
 
 	if request.user.is_authenticated:
-		media_base_url = f"http://{request.build_absolute_uri().split('://')[1].split('/')[0]}/media"
+		if request.method == 'POST':
+			media_base_url = f"http://{request.build_absolute_uri().split('://')[1].split('/')[0]}/media"
 
-		client = Client.objects.get(account = request.user)
+			client = Client.objects.get(account = request.user)
 
-		google_sheet_id = request.headers['googleSheetId']
-		try:
-			google_sheet = client.googlesheet_set.get(sheet_id=google_sheet_id)
-		except:
+			google_sheet_id = request.headers['googleSheetId']
+			try:
+				google_sheet = client.googlesheet_set.get(sheet_id=google_sheet_id)
+			except:
+				result = {
+					'status': 'Not accepted',
+					'message': 'Wrong googlesheet id'
+				}
+				return return_json_response(result, 401)
+			google_sheet.next_row_to_write_data = int(request.headers['nextRowToWriteData'])
+
+			filenames_to_parse = []
+			for file in request.FILES.getlist('pdf-file'):
+				time_now = time.time()
+				file_name = file.name
+				file_path = f'{media_base_dir}/{client.account.username}/{time_now}-{file_name}'
+				file_url = f'{media_base_url}/{client.account.username}/{time_now}-{file_name}'
+
+				filenames_to_parse.append([file_name, file_path, file_url])
+
+				FileSystemStorage().save(file_path, file)
+
+			error_filenames = {}
+			parsed_filenames = {}
+			for file_name, file_path, file_url in filenames_to_parse:
+				try:
+					data = get_data(file_path, file_url, client)
+					# write_to_googlesheet(
+					# 	data,
+					# 	google_sheet_id,
+					# 	google_sheet.next_row_to_write_data
+					# )
+
+					client.number_of_parsed_files += 1
+					google_sheet.next_row_to_write_data += len(data) + 2
+
+					parsed_filenames[file_name] = file_url
+				except Exception as error:
+					print(f"\n\nFile {file_path} can't be parsed\nError: {repr(error)}\n\n")
+
+					error_filenames[file_name] = file_url
+
+			client.save()
+			google_sheet.save()
+
+			result = {
+				'status': 'Accepted',
+				'message': f'{len(filenames_to_parse) - len(error_filenames)} file(s) were scaned successfully',
+				'google_sheet_id': google_sheet_id,
+				'parsed_filenames': parsed_filenames,
+				'error_filenames': error_filenames,
+				'next_row_to_write_data': google_sheet.next_row_to_write_data
+			}
+			if len(error_filenames) > 0:
+				result['message'] += f", {len(error_filenames)} file(s) can't be scaned"
+			return return_json_response(result)
+		else:
 			result = {
 				'status': 'Not accepted',
-				'message': 'Wrong googlesheet id'
+				'message': 'Wrong method'
 			}
-			return return_json_response(result, 401)
-		google_sheet.next_row_to_write_data = int(request.headers['nextRowToWriteData'])
-
-		filenames_to_parse = []
-		for file in request.FILES.getlist('pdf-file'):
-			time_now = time.time()
-			file_name = file.name
-			file_path = f'{media_base_dir}/{client.account.username}/{time_now}-{file_name}'
-			file_url = f'{media_base_url}/{client.account.username}/{time_now}-{file_name}'
-
-			filenames_to_parse.append([file_name, file_path, file_url])
-
-			FileSystemStorage().save(file_path, file)
-
-		error_filenames = {}
-		parsed_filenames = {}
-		for file_name, file_path, file_url in filenames_to_parse:
-			try:
-				data = get_data(file_path, file_url, client)
-				write_to_googlesheet(
-					data,
-					google_sheet_id,
-					google_sheet.next_row_to_write_data
-				)
-
-				client.number_of_parsed_files += 1
-				google_sheet.next_row_to_write_data += len(data) + 2
-
-				parsed_filenames[file_name] = file_url
-			except Exception as error:
-				print(f"\n\nFile {file_path} can't be parsed\nError: {repr(error)}\n\n")
-
-				error_filenames[file_name] = file_url
-
-		client.save()
-		google_sheet.save()
-
-		result = {
-			'status': 'Accepted',
-			'message': f'{len(filenames_to_parse) - len(error_filenames)} file(s) were scaned successfully',
-			'google_sheet_id': google_sheet_id,
-			'parsed_filenames': parsed_filenames,
-			'error_filenames': error_filenames,
-			'next_row_to_write_data': google_sheet.next_row_to_write_data
-		}
-		if len(error_filenames) > 0:
-			result['message'] += f", {len(error_filenames)} file(s) can't be scaned"
-		return return_json_response(result)
+			return return_json_response(result, 400)
 	else:
 		result = {
 			'status': 'Not accepted',
