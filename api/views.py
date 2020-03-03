@@ -806,7 +806,7 @@ def parse_pdf_file(request):
 
 		text = get_pdf_data(filename)
 		text = text[text.find('Order #'):]
-		print(text)
+		# print(text)
 
 		order_id = gft(text, 'Order #:', 'Equipment')
 		price = float(gft(text, 'Rate:', 'Carrier').replace('$', ''))
