@@ -21,6 +21,8 @@ from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
 
+import tabula
+
 
 from xlutils.copy import copy as xlcopy
 
@@ -737,12 +739,7 @@ def parse_pdf_file(request):
 		for vehicle in vehicles:
 			Vehicle(
 				name=vehicle.name,
-				vehicle_type=vehicle.type,
-				color=vehicle.color,
-				plate=vehicle.plate,
-				vin=vehicle.vin,
 				lot=vehicle.lot,
-				additional_info=vehicle.additional_info,
 
 				file=parsed_data
 			).save()
@@ -779,6 +776,157 @@ def parse_pdf_file(request):
 									   di_phones[di_phone_number], ''])
 
 		return data_to_return
+
+
+	def get_data2(filename, save_url, client):
+		class PDFVehicle():
+			pass
+
+
+		def extract_address(text):
+			if '*CONTACT DISPATCHER*' in text:
+				return text.split('*CONTACT DISPATCHER*')[-1].strip()
+
+			try:
+				x = int(text[:6])
+				address = text[6:]
+			except:
+				address = text[text.find(re.findall(r'[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?',\
+							   text)[0]):]
+
+			for i in range(len(address)):
+				for j in range(7, min(30, (len(address) - i) // 2)):
+					# print(address[i : i + j])
+					# print(address[i + j : i + 2 * j])
+					if address[i : i + j] == address[i + j : i + 2 * j]:
+						return address[i + j:]
+
+			return address.strip()
+
+
+		text = get_pdf_data(filename)
+		text = text[text.find('Order #'):]
+		print(text)
+
+		order_id = gft(text, 'Order #:', 'Equipment')
+		price = float(gft(text, 'Rate:', 'Carrier').replace('$', ''))
+		company_name = gft(text, 'Carrier:', 'Phone')
+		company_phone = gft(text, 'Phone #:', 'Dispatcher')
+		pi_address = ' '.join([gft(text, 'Address:', 'City'), gft(text, 'City:', 'State'),\
+							   gft(text, 'State:', 'Zip:'), gft(text, 'Zip:', 'Contact')])
+		pi_phones = re.findall(r'(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})',\
+							   gft(text, 'Phone #:', 'Pick', text.find('Address')))
+		pickup_exactly = gft(text, 'Pick Up date and/or window:', 'Pick Up').split('/')
+		pickup_exactly = f'{pickup_exactly[1]}.{pickup_exactly[0]}.{pickup_exactly[2]}'
+
+
+		data = tabula.read_pdf(filename, pages='all')[0].iloc
+		vehicles = []
+		for vehicle_number in range(100):
+			try:
+				vehicle = PDFVehicle()
+				vehicle.name = f'{data[vehicle_number, 0]} {data[vehicle_number, 1]} {data[vehicle_number, 2]}'
+				vehicle.lot = data[vehicle_number, 5]
+				vehicles.append(vehicle)
+			except:
+				break
+
+
+		text = text[text.find(data[0, 3]):]
+
+
+		di_address = ' '.join([gft(text, 'Address:', 'City'), gft(text, 'City:', 'State'),\
+							   gft(text, 'State:', 'Zip:'), gft(text, 'Zip:', 'Contact')])
+		di_phones = re.findall(r'(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})',\
+							   gft(text, 'Phone #:', 'Delivery', text.find('Address')))
+		delivery_estimated = gft(text, 'Delivery date and/or window:', 'Delivery').split('/')
+		delivery_estimated = f'{delivery_estimated[1]}.{delivery_estimated[0]}.{delivery_estimated[2]}'
+
+		emails = re.findall(r'[\w\.-]+@[\w\.-]+', text)
+
+
+		direction_api_url = f'https://maps.googleapis.com/maps/api/directions/json?origin={pi_address}&destination={di_address}&mode=driving&traffic_model=pessimistic&departure_time=now&key={google_directions_api_key}'.replace('#', '%23')
+		data = json.loads(requests.get(direction_api_url).text)
+		direction_length = int(data['routes'][0]['legs'][0]['distance']['text'].replace(',', '').split('mi')[0].strip())
+		origin_place_id = data['geocoded_waypoints'][0]['place_id']
+		destination_place_id = data['geocoded_waypoints'][1]['place_id']
+		direction_link = f'https://www.google.com/maps/dir/?api=1&origin={pi_address}&origin_place_id={origin_place_id}&destination={di_address}&destination_place_id={destination_place_id}&travelmode=driving'.replace(' ', '+')
+		origin_address_link = f'https://www.google.com/maps/search/?api=1&query={pi_address}&query_place_id={origin_place_id}'.replace(' ', '+')
+		destination_address_link = f'https://www.google.com/maps/search/?api=1&query={di_address}&query_place_id={destination_place_id}'.replace(' ', '+')
+
+
+		data_to_return = [[company_name, order_id, company_phone, '', price,
+						   f'=ГИПЕРССЫЛКА("{direction_link}";"{direction_length}")',
+						   round(price/direction_length, 2),
+						   f'=ГИПЕРССЫЛКА("{origin_address_link}";"{pi_address}")',
+						   '', pickup_exactly,
+						   f'=ГИПЕРССЫЛКА("{destination_address_link}";"{di_address}")',
+						   '', delivery_estimated.replace('/', '.'), save_url.replace(' ', '%20')],
+						   ['', '', '', '', '', '', '', '', '', '', '',\
+						    '', '', '   '.join(f'LOT #: {vehicle.lot}' for vehicle in vehicles)]]
+
+		parsed_data = ParsedData(
+			company_name=company_name,
+			order_id=order_id,
+			company_phone=company_phone,
+
+			price=price,
+
+			direction_length=direction_length,
+			direction_link=direction_link,
+
+			pi_address=pi_address,
+			di_address=di_address,
+			origin_address_link=origin_address_link,
+			destination_address_link=destination_address_link,
+
+			pi_phone0=pi_phones[0],
+			pi_phone1=pi_phones[1],
+			di_phone0=di_phones[0],
+			di_phone1=di_phones[1],
+
+			pickup_exactly=pickup_exactly,
+			delivery_estimated=delivery_estimated,
+
+			emails=', '.join(emails),
+
+			save_url=save_url,
+
+			client=client
+		)
+		parsed_data.save()
+
+		for vehicle in vehicles:
+			Vehicle(
+				name=vehicle.name,
+				lot=vehicle.lot,
+
+				file=parsed_data
+			).save()
+
+		for vehicle_number in range(len(vehicles)):
+			try:
+				data_to_return[vehicle_number][3] = vehicles[vehicle_number].name
+			except:
+				data_to_return.append(['', '', '', vehicles[vehicle_number].name,
+									   '', '', '', '', '', '', '', '', ''])
+
+		for pi_phone_number in range(len(pi_phones)):
+			try:
+				data_to_return[pi_phone_number][8] = pi_phones[pi_phone_number]
+			except:
+				data_to_return.append(['', '', '', '', '', '', '', '',
+									   pi_phones[pi_phone_number],  '', '', ''])
+
+		for di_phone_number in range(len(di_phones)):
+			try:
+				data_to_return[di_phone_number][11] = di_phones[di_phone_number]
+			except:
+				data_to_return.append(['', '', '',  '', '', '', '', '', '', '', '',
+									   di_phones[di_phone_number], ''])
+
+		return data_to_return
+
 
 
 	def write_to_googlesheet(data, sheet_id, start_row):
@@ -831,12 +979,15 @@ def parse_pdf_file(request):
 			parsed_filenames = {}
 			for file_name, file_path, file_url in filenames_to_parse:
 				try:
-					data = get_data(file_path, file_url, client)
-					# write_to_googlesheet(
-					# 	data,
-					# 	google_sheet_id,
-					# 	google_sheet.next_row_to_write_data
-					# )
+					try:
+						data = get_data(file_path, file_url, client)
+					except:
+						data = get_data2(file_path, file_url, client)
+					write_to_googlesheet(
+						data,
+						google_sheet_id,
+						google_sheet.next_row_to_write_data
+					)
 
 					client.number_of_parsed_files += 1
 					google_sheet.next_row_to_write_data += len(data) + 2

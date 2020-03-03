@@ -39,12 +39,7 @@ class ParsedData(models.Model):
 
 class Vehicle(models.Model):
 	name = models.CharField(max_length = 1000)
-	vehicle_type = models.CharField(max_length = 1000)
-	color = models.CharField(max_length = 1000)
-	plate = models.CharField(max_length = 1000)
-	vin = models.CharField(max_length = 1000)
 	lot = models.CharField(max_length = 1000)
-	additional_info = models.CharField(max_length = 1000)
 
 	file = models.ForeignKey(ParsedData, on_delete=models.CASCADE)
 
