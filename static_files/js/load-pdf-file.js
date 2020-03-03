@@ -20,6 +20,16 @@ $(document).ready(function(){
 
 
 	$('#load-file-btn').click(function(){
+		function printProgress(parsed, all) {
+			if (parsingEnded || parsed - 1 == all) {
+				return;
+			}
+
+			$('#result-field').text('Scanning files... ' + parseInt(99 * parsed / all) + '%');
+
+			setTimeout(printProgress, 3000, parsed + 1, all);
+		}
+
 		var files = $('#pdf-file-input').prop('files'),
 			fd = new FormData,
 			nextRowToWriteData = parseInt($('#next-row-to-write-data-field').val()),
@@ -35,10 +45,19 @@ $(document).ready(function(){
 
 		for (let fileNum in files) {
 			fd.append('pdf-file', files[fileNum]);
+
+			/*
+			if (fileNum == '9') {
+				break;
+			}
+			*/
 		}
 
 
-		$('#result-field').text('Scanning files...');
+		parsingEnded = false;
+		setTimeout(printProgress, 0, 0, files.length);
+
+
 		$('#results-saved-msg').hide();
 
 		$('#parsed-files, #error-files').empty();
@@ -59,6 +78,8 @@ $(document).ready(function(){
 				googlesheetId: googlesheetId
 			},
 			success: function(result){
+				parsingEnded = true;
+
 				$('#result-field').text(result.message);
 				$('#results-saved-msg').show();
 
