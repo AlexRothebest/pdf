@@ -27,7 +27,7 @@ $(document).ready(function(){
 
 			$('#result-field').text('Scanning files... ' + parseInt(99 * parsed / all) + '%');
 
-			setTimeout(printProgress, 3000, parsed + 1, all);
+			setTimeout(printProgress, 2000, parsed + 1, all);
 		}
 
 		var files = $('#pdf-file-input').prop('files'),
