@@ -73,7 +73,7 @@ alphabet = string.ascii_letters + string.digits
 
 def return_json_response(data, status_code = 200):
 	response = HttpResponse(json.dumps(data), content_type = 'application/json')
-	response.status_code = status_code
+	# response.status_code = status_code
 	return response
 
 
