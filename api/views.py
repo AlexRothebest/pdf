@@ -392,7 +392,7 @@ def add_new_googlesheet(request):
 			'Vehicle',
 			'Cost $',
 			'Miles',
-			'Price per mile'
+			'Price per mile',
 			'From Address',
 			'Pickup Phone',
 			'Pick Up Date',
